@@ -247,7 +247,7 @@ function fetchFileHistory(repoPath, filePath) {
                 clearTimelineDisplay();
                 alert('No commit history available for this file.');
             } else {
-                displayTimeline(commits);
+                displayTimeline(commits, document.getElementById('fileTimelineContainer'));
             }
         })
         .catch(error => {
@@ -256,28 +256,40 @@ function fetchFileHistory(repoPath, filePath) {
         });
 }
 
-function displayTimeline(commits) {
-    const timelineContainer = document.getElementById("fileTimelineContainer");
-    timelineContainer.innerHTML = ''; // Clear previous timeline
+document.getElementById('prevButton').addEventListener('click', () => {
+    // Logic for handling the previous button click
+    navigateCommits('prev', globalCommits); // You'll need to maintain a globalCommits array
+});
 
-    // Create and position navigation buttons
-    const prevButton = createNavigationButton('prev', commits);
-    prevButton.id = 'prevButton';
-    const nextButton = createNavigationButton('next', commits);
-    nextButton.id = 'nextButton';
-    timelineContainer.appendChild(prevButton);
+document.getElementById('nextButton').addEventListener('click', () => {
+    // Logic for handling the next button click
+    navigateCommits('next', globalCommits); // You'll need to maintain a globalCommits array
+});
 
-    // Place commit markers
+function displayTimeline(commits, container) {
+    // Clear existing timeline display
+    clearTimelineDisplay(container);
+
+    // Save commits to a global variable for navigation
+    globalCommits = commits;
+
+    // Access the timeline baseline from the container
+    const baseLine = container.querySelector('.timeline-baseLine');
+    baseLine.innerHTML = ''; // Clear existing markers
+
+    // Add commit markers to the baseline
     commits.forEach(commit => {
-        const commitButton = document.createElement("button");
-        commitButton.className = 'commit-marker';
-        commitButton.style.left = calculatePosition(commit.commit.author.date, commits) + "%";
-        commitButton.title = `Commit on ${new Date(commit.commit.author.date).toLocaleDateString()}`;
-        // ... (The rest of the button setup as before)
+        const marker = document.createElement('button');
+        marker.className = 'commit-marker';
+        marker.style.left = calculatePosition(new Date(commit.commit.author.date), commits) + '%';
+        marker.textContent = '•'; // or any marker symbol you prefer
+        marker.onclick = function() {
+            setToField(commit.sha);
+        };
+        baseLine.appendChild(marker);
     });
-
-    timelineContainer.appendChild(nextButton);
 }
+
 
 function setToField(commitSha) {
     const toCommitSelector = document.getElementById('commitSelectorTo');
@@ -311,6 +323,8 @@ function navigateCommits(direction, commits) {
     }
 }
 
+
+let globalCommits = [];
 
 
 function calculatePosition(date, commits) {
