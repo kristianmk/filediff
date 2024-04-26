@@ -1,29 +1,56 @@
+document.getElementById('repoUrl').addEventListener('change', function() {
+    const repoUrl = document.getElementById('repoUrl').value;
+    const repoPath = repoUrl.split("github.com/")[1];
+    if (!repoPath) {
+        alert("Please enter a valid GitHub repository URL.");
+        return;
+    }
+    fetchVersions(repoPath, 'version1');
+    fetchVersions(repoPath, 'version2');
+});
+
+function fetchVersions(repoPath, selectId) {
+    const url = `https://api.github.com/repos/${repoPath}/tags`; // You can change this to /branches if needed
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById(selectId);
+            select.innerHTML = data.map(tag => `<option value="${tag.name}">${tag.name}</option>`).join('');
+            if (!data.length) {
+                select.innerHTML = '<option>No versions found</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching versions:', error);
+            alert('Error fetching versions. Check console for details.');
+        });
+}
+
 document.getElementById('diffForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevents form from submitting traditionally
+    event.preventDefault();
+    const repoUrl = document.getElementById('repoUrl').value;
+    const repoPath = repoUrl.split("github.com/")[1];
     const version1 = document.getElementById('version1').value;
     const version2 = document.getElementById('version2').value;
-    const repo = 'kristianmk/party-hat-generator'; // Specify your repository
-    const url = `https://api.github.com/repos/${repo}/compare/${version1}...${version2}`;
+    const url = `https://api.github.com/repos/${repoPath}/compare/${version1}...${version2}`;
 
     fetch(url, {
-        headers: {
-            'Accept': 'application/vnd.github.v3.diff' // Requesting diff format directly
-        }
+        headers: { 'Accept': 'application/vnd.github.v3.diff' }
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Failed to fetch diff: ' + response.statusText);
         }
-        return response.text(); // Get the diff as plain text
+        return response.text();
     })
     .then(diffText => {
         const targetElement = document.getElementById('diffOutput');
         const configuration = {
-            inputFormat: 'diff', // Ensure the input format is set to 'diff'
-            outputFormat: 'side-by-side', // You can choose 'line-by-line'
-            drawFileList: true, // Shows list of changed files
-            matching: 'lines', // Shows line matching
-            synchronisedScroll: true // Syncs scrolls between two panes
+            inputFormat: 'diff',
+            outputFormat: 'side-by-side',
+            drawFileList: true,
+            matching: 'lines',
+            synchronisedScroll: true
         };
         const diff2htmlUi = new Diff2HtmlUI(targetElement, diffText, configuration);
         diff2htmlUi.draw();
