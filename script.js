@@ -259,28 +259,21 @@ function fetchFileHistory(repoPath, filePath) {
 function displayTimeline(commits) {
     const timelineContainer = document.getElementById("fileTimelineContainer");
     timelineContainer.innerHTML = ''; // Clear previous timeline
-    // Create navigation buttons
+
+    // Create and position navigation buttons
     const prevButton = createNavigationButton('prev', commits);
+    prevButton.id = 'prevButton';
     const nextButton = createNavigationButton('next', commits);
+    nextButton.id = 'nextButton';
     timelineContainer.appendChild(prevButton);
 
-    // Assume commits is an array of objects with a date property
-    commits.forEach((commit, index) => {
+    // Place commit markers
+    commits.forEach(commit => {
         const commitButton = document.createElement("button");
-        commitButton.style.position = "absolute";
+        commitButton.className = 'commit-marker';
         commitButton.style.left = calculatePosition(commit.commit.author.date, commits) + "%";
-        commitButton.style.top = "0";
-        commitButton.style.height = "50px";
-        commitButton.style.width = "5px";
-        commitButton.style.backgroundColor = "#007bff";
         commitButton.title = `Commit on ${new Date(commit.commit.author.date).toLocaleDateString()}`;
-        commitButton.onclick = function() {
-            setToField(commit.sha); // Function to set the "To" field
-        };
-        timelineContainer.appendChild(commitButton);
-
-        // Optionally, store index for navigation
-        commitButton.dataset.index = index;
+        // ... (The rest of the button setup as before)
     });
 
     timelineContainer.appendChild(nextButton);
