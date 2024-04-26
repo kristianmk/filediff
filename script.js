@@ -229,7 +229,7 @@ document.getElementById('fileSelector').addEventListener('change', function() {
 
 function clearTimelineDisplay() {
     // Clear the timeline display area, adjust based on your implementation
-    const timelineArea = document.getElementById('timelineDisplay');
+    const timelineArea = document.getElementById('.timeline-baseLine');
     timelineArea.innerHTML = '';
 }
 
