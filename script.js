@@ -75,6 +75,34 @@ document.getElementById('branchSelectorTo').addEventListener('change', function(
     fetchTagsAndCommits(repoPath, 'To');
 });
 
+// Function to remove highlights from all dropdowns
+function removeHighlights(prefix) {
+    document.getElementById(`branchSelector${prefix}`).classList.remove('active-selection');
+    document.getElementById(`tagSelector${prefix}`).classList.remove('active-selection');
+    document.getElementById(`commitSelector${prefix}`).classList.remove('active-selection');
+}
+
+// Function to update version selection and highlight the active field
+function updateVersionSelection(type, prefix) {
+    removeHighlights(prefix); // First, remove all existing highlights
+    const selector = document.getElementById(`${type}Selector${prefix}`);
+    selector.classList.add('active-selection'); // Add highlight to the active field
+    // Update the selected version to be used for diffing
+    document.getElementById(`selectedVersion${prefix}`).value = selector.value;
+}
+
+// Add event listeners to tag and commit selectors to update version selection
+['From', 'To'].forEach(prefix => {
+    document.getElementById(`tagSelector${prefix}`).addEventListener('change', function() {
+        updateVersionSelection('tag', prefix);
+    });
+    
+    document.getElementById(`commitSelector${prefix}`).addEventListener('change', function() {
+        updateVersionSelection('commit', prefix);
+    });
+});
+
+
 document.getElementById('diffForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
@@ -116,9 +144,6 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
 
 // Utility function to get the selected version from the "From" or "To" dropdowns
 function getVersion(prefix) {
-    const branch = document.getElementById(`branchSelector${prefix}`).value;
-    const tag = document.getElementById(`tagSelector${prefix}`).value;
-    const commit = document.getElementById(`commitSelector${prefix}`).value;
-
-    return commit || tag || branch; // Priority: commit > tag > branch
+    // Use the value from the hidden input that keeps track of the latest selection
+    return document.getElementById(`selectedVersion${prefix}`).value;
 }
