@@ -331,13 +331,20 @@ let globalCommits = [];
 
 
 function calculatePosition(date, commits) {
-    const startDate = new Date(commits[0].date); // assuming commits are sorted by date
-    const endDate = new Date(commits[commits.length - 1].date);
-    const currentDate = new Date(date);
+    const parseDate = (dateStr) => new Date(dateStr).getTime();
+    const startDate = parseDate(commits[0].commit.author.date);
+    const endDate = parseDate(commits[commits.length - 1].commit.author.date);
+    const currentDate = parseDate(date);
+
     const totalDuration = endDate - startDate;
     const currentDuration = currentDate - startDate;
-    return (currentDuration / totalDuration) * 100; // returns a percentage of the total timeline width
+    
+    if (totalDuration === 0) return 0; // Avoid division by zero
+
+    // Calculate percentage of the timeline where the marker should appear
+    return (currentDuration / totalDuration) * 100;
 }
+
 
 
 
