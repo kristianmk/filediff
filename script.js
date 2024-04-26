@@ -74,7 +74,7 @@ document.getElementById('branchSelectorFrom').addEventListener('change', functio
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     // When a new 'From' branch is selected, fetch the associated tags and commits
     fetchTagsAndCommits(repoPath, 'From');
-    updateFileList(repoPath, branch); // Allow file selection from branchSelectorFrom only.
+    updateFileList(repoPath, selectedBranch); // Allow file selection from branchSelectorFrom only.
 });
 
 // Fetch and populate "To" versions
@@ -229,14 +229,35 @@ function clearTimelineDisplay() {
 }
 
 function displayTimeline(commits) {
-    // Implement your logic to visualize the timeline based on the commits data
-    const timelineArea = document.getElementById('timelineDisplay');
-    timelineArea.innerHTML = ''; // Clear previous timeline
+    const timelineContainer = document.getElementById("fileTimelineContainer");
+    const baseLine = document.createElement("div");
+    baseLine.style.position = "absolute";
+    baseLine.style.width = "100%";
+    baseLine.style.height = "2px";
+    baseLine.style.backgroundColor = "#ccc";
+    timelineContainer.appendChild(baseLine);
+
+    // Assume commits is an array of objects with a date property
     commits.forEach(commit => {
-        const marker = document.createElement('div');
-        marker.textContent = `Commit on ${new Date(commit.commit.author.date).toLocaleDateString()}`;
-        timelineArea.appendChild(marker);
+        const marker = document.createElement("div");
+        marker.style.position = "absolute";
+        marker.style.left = calculatePosition(commit.date, commits) + "%"; // Calculate position based on date
+        marker.style.top = "0";
+        marker.style.height = "50px";
+        marker.style.width = "5px";
+        marker.style.backgroundColor = "#007bff";
+        timelineContainer.appendChild(marker);
     });
 }
+
+function calculatePosition(date, commits) {
+    const startDate = new Date(commits[0].date); // assuming commits are sorted by date
+    const endDate = new Date(commits[commits.length - 1].date);
+    const currentDate = new Date(date);
+    const totalDuration = endDate - startDate;
+    const currentDuration = currentDate - startDate;
+    return (currentDuration / totalDuration) * 100; // returns a percentage of the total timeline width
+}
+
 
 
