@@ -298,13 +298,13 @@ function displayTimeline(commits, container) {
     });
 }
 
-function highlightActiveCommit(activeSha, container) {
-    const markers = container.querySelectorAll('.commit-marker');
+function highlightActiveCommit(activeSha) {
+    const markers = document.querySelectorAll('.commit-marker');
     markers.forEach(marker => {
         if (marker.dataset.sha === activeSha) {
-            marker.classList.add('active');
+            marker.classList.add('active'); // Add class for active commit
         } else {
-            marker.classList.remove('active');
+            marker.classList.remove('active'); // Remove class from non-active commits
         }
     });
 }
@@ -314,6 +314,7 @@ function setToField(commitSha) {
     const toCommitSelector = document.getElementById('commitSelectorTo');
     toCommitSelector.value = commitSha; // Assuming the value exists in the options
     updateVersionSelection('commit', 'To'); // Call this if you want to trigger any additional logic
+    highlightActiveCommit(commitSha); // Highlight the active commit marker
 }
 
 function createNavigationButton(direction, commits) {
@@ -336,9 +337,11 @@ function navigateCommits(direction, commits) {
         currentIndex += 1;
     }
 
-    // Set the new commit SHA to the "To" field and update display
+    // Set the new commit SHA to the "To" field, update display, and highlight
     if (currentIndex >= 0 && currentIndex < commits.length) {
-        setToField(commits[currentIndex].sha);
+        const newCommitSha = commits[currentIndex].sha;
+        setToField(newCommitSha);
+        highlightActiveCommit(newCommitSha);
     }
 }
 
