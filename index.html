@@ -8,8 +8,13 @@
 <body>
     <h1>GitHub Diff Viewer</h1>
     <form id="diffForm">
-        <input type="text" id="version1" placeholder="Enter first tag/commit" required>
-        <input type="text" id="version2" placeholder="Enter second tag/commit" required>
+        <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
+        <select id="version1" required>
+            <option value="">Select first version</option>
+        </select>
+        <select id="version2" required>
+            <option value="">Select second version</option>
+        </select>
         <button type="submit">Load Diff</button>
     </form>
     <div id="diffOutput"></div>
