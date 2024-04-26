@@ -85,12 +85,12 @@ document.getElementById('branchSelectorTo').addEventListener('change', function(
 
 // Function to remove highlights from all dropdowns
 function removeHighlights(prefix) {
-    document.getElementById(`branchSelector${prefix}`).classList.remove('active-selection');
+    //document.getElementById(`branchSelector${prefix}`).classList.remove('active-selection');
     document.getElementById(`tagSelector${prefix}`).classList.remove('active-selection');
     document.getElementById(`commitSelector${prefix}`).classList.remove('active-selection');
 }
 
-
+/*
 document.querySelectorAll('select').forEach(function(selector) {
     selector.addEventListener('change', function() {
         // Remove active-selection from all selects
@@ -100,7 +100,7 @@ document.querySelectorAll('select').forEach(function(selector) {
         this.classList.add('active-selection');
     });
 });
-
+*/
 
 // Function to update version selection and highlight the active field
 function updateVersionSelection(type, prefix) {
