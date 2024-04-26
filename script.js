@@ -227,24 +227,39 @@ document.getElementById('fileSelector').addEventListener('change', function() {
     }
 });
 
-function fetchFileHistory(repoPath, filePath) {
-    const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
-    fetch(url)
-        .then(response => response.json())
-        .then(commits => {
-            displayTimeline(commits);
-        })
-        .catch(error => console.error('Error fetching file history:', error));
-}
-
 function clearTimelineDisplay() {
     // Clear the timeline display area, adjust based on your implementation
     const timelineArea = document.getElementById('timelineDisplay');
     timelineArea.innerHTML = '';
 }
 
+function fetchFileHistory(repoPath, filePath) {
+    const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
+    console.log(`Fetching commit history from ${url}`); // Log fetching action
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(commits => {
+            if (commits.length === 0) {
+                console.log('No commits found for this file.');
+                clearTimelineDisplay();
+                alert('No commit history available for this file.');
+            } else {
+                displayTimeline(commits);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching file history:', error);
+            alert('Error fetching file history: ' + error.message);
+        });
+}
+
 function displayTimeline(commits) {
     const timelineContainer = document.getElementById("fileTimelineContainer");
+    timelineContainer.innerHTML = ''; // Clear previous timeline data
+
     const baseLine = document.createElement("div");
     baseLine.style.position = "absolute";
     baseLine.style.width = "100%";
@@ -252,11 +267,15 @@ function displayTimeline(commits) {
     baseLine.style.backgroundColor = "#ccc";
     timelineContainer.appendChild(baseLine);
 
-    // Assume commits is an array of objects with a date property
+    const totalDuration = new Date(commits[commits.length - 1].commit.author.date) - new Date(commits[0].commit.author.date);
+    
     commits.forEach(commit => {
+        const commitDate = new Date(commit.commit.author.date);
+        const position = ((commitDate - new Date(commits[0].commit.author.date)) / totalDuration) * 100;
+
         const marker = document.createElement("div");
         marker.style.position = "absolute";
-        marker.style.left = calculatePosition(commit.date, commits) + "%"; // Calculate position based on date
+        marker.style.left = `${position}%`;
         marker.style.top = "0";
         marker.style.height = "50px";
         marker.style.width = "5px";
@@ -264,6 +283,7 @@ function displayTimeline(commits) {
         timelineContainer.appendChild(marker);
     });
 }
+
 
 function calculatePosition(date, commits) {
     const startDate = new Date(commits[0].date); // assuming commits are sorted by date
