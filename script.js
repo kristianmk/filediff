@@ -21,26 +21,39 @@ function parseGitHubPath(url) {
 }
 
 
-function fetchVersions(repoPath, selectId) {
+function fetchTagsAndCommits(branchName) {
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     const tagsUrl = `https://api.github.com/repos/${repoPath}/tags`;
-    const branchesUrl = `https://api.github.com/repos/${repoPath}/branches`;
-    
-    Promise.all([
-        fetch(tagsUrl).then(res => res.json()),
-        fetch(branchesUrl).then(res => res.json())
-    ]).then(([tags, branches]) => {
-        const versions = [...tags, ...branches];
-        const select = document.getElementById(selectId);
-        if (versions.length > 0) {
-            select.innerHTML = versions.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
-        } else {
-            select.innerHTML = '<option>No versions found</option>';
-        }
-    }).catch(error => {
-        console.error('Error fetching versions:', error);
-        alert('Error fetching versions. Check console for details.');
-    });
+    const commitsUrl = `https://api.github.com/repos/${repoPath}/commits?sha=${branchName}`;
+
+    // Fetch and populate tags
+    fetch(tagsUrl)
+        .then(response => response.json())
+        .then(tags => {
+            const tagSelector = document.getElementById('tagSelector');
+            tagSelector.innerHTML = tags.map(tag => `<option value="${tag.name}">${tag.name}</option>`).join('');
+        });
+
+    // Fetch and populate commits, limiting to the most recent 30 for example
+    fetch(commitsUrl)
+        .then(response => response.json())
+        .then(commits => {
+            const commitSelector = document.getElementById('commitSelector');
+            commitSelector.innerHTML = commits.slice(0, 30).map(commit => `<option value="${commit.sha}">${commit.commit.message.split('\n')[0]}</option>`).join('');
+        });
 }
+
+// Fetch and populate branches on initial load or repository URL change
+function fetchBranches(repoPath) {
+    const branchesUrl = `https://api.github.com/repos/${repoPath}/branches`;
+    fetch(branchesUrl)
+        .then(response => response.json())
+        .then(branches => {
+            const branchSelector = document.getElementById('branchSelector');
+            branchSelector.innerHTML = branches.map(branch => `<option value="${branch.name}">${branch.name}</option>`).join('');
+        });
+}
+
 
 document.getElementById('diffForm').addEventListener('submit', function(event) {
     event.preventDefault();
