@@ -269,27 +269,43 @@ document.getElementById('nextButton').addEventListener('click', () => {
     navigateCommits('next', globalCommits); // You'll need to maintain a globalCommits array
 });
 
+
 function displayTimeline(commits, container) {
-    // Clear existing timeline display
     clearTimelineDisplay(container);
-
-    // Save commits to a global variable for navigation
     globalCommits = commits;
-
-    // Access the timeline baseline from the container
     const baseLine = container.querySelector('.timeline-baseLine');
-    baseLine.innerHTML = ''; // Clear existing markers
+    baseLine.innerHTML = '';
+    let lastPosition = -1;
+    const minDistance = 1;
 
-    // Add commit markers to the baseline
     commits.forEach(commit => {
+        let position = calculatePosition(new Date(commit.commit.author.date), commits);
+        if (lastPosition !== -1 && (position - lastPosition) < minDistance) {
+            position = lastPosition + minDistance;
+        }
+        lastPosition = position;
+
         const marker = document.createElement('button');
         marker.className = 'commit-marker';
-        marker.style.left = calculatePosition(new Date(commit.commit.author.date), commits) + '%';
-        marker.textContent = '•'; // or any marker symbol you prefer
+        marker.dataset.sha = commit.sha; // Store commit SHA in data attribute
+        marker.style.left = position + '%';
+        marker.textContent = '•';
         marker.onclick = function() {
             setToField(commit.sha);
+            highlightActiveCommit(commit.sha, container);
         };
         baseLine.appendChild(marker);
+    });
+}
+
+function highlightActiveCommit(activeSha, container) {
+    const markers = container.querySelectorAll('.commit-marker');
+    markers.forEach(marker => {
+        if (marker.dataset.sha === activeSha) {
+            marker.classList.add('active');
+        } else {
+            marker.classList.remove('active');
+        }
     });
 }
 
