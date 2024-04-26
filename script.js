@@ -19,16 +19,14 @@ function fetchBranches(repoPath, prefix) {
     fetch(branchesUrl)
         .then(response => response.json())
         .then(branches => {
-            const branchSelectorFrom = document.getElementById(`branchSelector${prefix}`);
-            branchSelectorFrom.innerHTML = '<option value="">Select a branch</option>' + branches.map(branch => `<option value="${branch.name}">${branch.name}</option>`).join('');
-            // Call fetchTagsAndCommits for the 'From' dropdown after populating branches
-            if (prefix === 'From') {
-                fetchTagsAndCommits(repoPath, 'From');
-            }
+            const branchSelector = document.getElementById(`branchSelector${prefix}`);
+            branchSelector.innerHTML = branches.map(branch => 
+                `<option value="${branch.name}" ${branch.name === 'main' || branch.name === 'master' ? 'selected' : ''}>${branch.name}</option>`
+            ).join('');
+            fetchTagsAndCommits(repoPath, prefix); // Fetch tags and commits after branches are loaded
         })
         .catch(error => console.error('Error fetching branches:', error));
 }
-
 
 function fetchTagsAndCommits(repoPath, prefix) {
     const tagsUrl = `https://api.github.com/repos/${repoPath}/tags`;
@@ -39,16 +37,26 @@ function fetchTagsAndCommits(repoPath, prefix) {
         .then(response => response.json())
         .then(tags => {
             const tagSelector = document.getElementById(`tagSelector${prefix}`);
-            tagSelector.innerHTML = '<option value="">Select a tag</option>' + tags.map(tag => `<option value="${tag.name}">${tag.name}</option>`).join('');
+            if (tags.length) {
+                tagSelector.innerHTML = '<option value="">Select a tag</option>' + tags.map(tag => 
+                    `<option value="${tag.name}">${tag.name}</option>`
+                ).join('');
+            } else {
+                tagSelector.innerHTML = '<option>No tags</option>';
+                tagSelector.disabled = true; // Disable tag dropdown if no tags
+            }
         })
         .catch(error => console.error('Error fetching tags:', error));
 
-    // Fetch and populate commits, limiting to the most recent 30 for example
+    // Fetch and populate commits
     fetch(commitsUrl)
         .then(response => response.json())
         .then(commits => {
             const commitSelector = document.getElementById(`commitSelector${prefix}`);
-            commitSelector.innerHTML = '<option value="">Select a commit</option>' + commits.slice(0, 30).map(commit => `<option value="${commit.sha}">${commit.commit.message.split('\n')[0]}</option>`).join('');
+            commitSelector.innerHTML = '<option value="">Select a commit</option>' + commits.slice(0, 30).map(commit => {
+                const commitDate = new Date(commit.commit.committer.date).toLocaleString();
+                return `<option value="${commit.sha}">${commit.sha.substring(0, 7)} - ${commitDate} - ${commit.commit.message.split('\n')[0]}</option>`;
+            }).join('');
         })
         .catch(error => console.error('Error fetching commits:', error));
 }
