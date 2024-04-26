@@ -164,11 +164,13 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
 
 
 document.getElementById('pasteUrl').addEventListener('click', function() {
-    navigator.clipboard.readText().then(
-        clipText => document.getElementById('repoUrl').value = clipText
-    ).catch(err => {
+    navigator.clipboard.readText().then(clipText => {
+        const repoUrlInput = document.getElementById('repoUrl');
+        repoUrlInput.value = clipText; // Paste
+        repoUrlInput.dispatchEvent(new Event('change')); // Trigger the change event manually
+    }).catch(err => {
         console.error('Error pasting text: ', err);
-        // Handle error case or inform user if necessary
+        alert('Failed to paste text: ' + err);
     });
 });
 
