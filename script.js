@@ -82,6 +82,18 @@ function removeHighlights(prefix) {
     document.getElementById(`commitSelector${prefix}`).classList.remove('active-selection');
 }
 
+
+document.querySelectorAll('select').forEach(function(selector) {
+    selector.addEventListener('change', function() {
+        // Remove active-selection from all selects
+        document.querySelectorAll('select').forEach(sel => sel.classList.remove('active-selection'));
+        
+        // Add active-selection to the currently changed select
+        this.classList.add('active-selection');
+    });
+});
+
+
 // Function to update version selection and highlight the active field
 function updateVersionSelection(type, prefix) {
     removeHighlights(prefix); // First, remove all existing highlights
