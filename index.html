@@ -5,55 +5,62 @@
     <title>GitHub Diff Viewer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
     <style>
-        .active-selection {
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-            border: 1px solid rgba(0, 255, 0, 0.8);
-        }
-        
-        /* Apply a base font family */
         body {
             font-family: 'Open Sans', sans-serif;
-            line-height: 1.6;
+            line-height: 1.2;
         }
-        
-        /* Style the dropdowns and inputs */
-        select, input[type="text"] {
+
+        /* Define a specific class for the action buttons to control width */
+        .action-button {
+            width: 9em; /* Set a fixed width, you can adjust this value */
             padding: 0.5rem;
+            margin-left: 0.5rem; /* This will add spacing to the left side */
             border: 1px solid #ddd;
-            margin: 0.2rem 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        /* Button styling */
-        button {
+            border-radius: 0.3rem;
             background-color: #007bff;
             color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.3rem;
             cursor: pointer;
-            margin-top: 0.5rem;
+            text-align: center; /* Ensure text is centered if button width is greater than text */
         }
-        
-        button:hover {
-            background-color: #0056b3;
+
+            .action-button:hover {
+                background-color: #0056b3;
+            }
+
+        /* Make sure the specific id has the same properties as well */
+        #pasteUrl {
+            width: 9em; /* Set a fixed width, same as .action-button */
+            padding: 0.5rem;
+            margin-left: 0.5rem; /* This will add spacing to the left side */
+            border-radius: 0.3rem;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            text-align: center; /* Ensure text is centered if button width is greater than text */
         }
-        
-        /* Layout adjustments */
-        #diffOutput {
-            margin-top: 1rem;
-            border: 1px solid #ccc;
-            padding: 1rem;
-            overflow-x: auto;
-        }
-        
+
+            #pasteUrl:hover {
+                background-color: #0056b3;
+            }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            /*margin-bottom: 0.5em;*/
+            flex-wrap: wrap; /* Allows items to wrap onto multiple lines as needed */
         }
+
+            .header input[type="text"] {
+                flex: 1; /* Allows the input to grow and use available space */
+                min-width: 300px; /* Ensures a reasonable minimum width for the input */
+            }
+
+            .header a {
+                margin-left: 10px; /* Spacing between the input and 'Load Example' link */
+                white-space: nowrap; /* Prevents the link text from wrapping */
+            }
+
 
         .version-selectors {
             display: flex;
@@ -61,69 +68,80 @@
             margin-bottom: 10px;
         }
 
-        .version-selectors > div {
-            flex: 1;
-            margin-right: 10px;
-        }
+            .version-selectors > div {
+                flex: 1;
+                margin-right: 10px;
+            }
 
-        .version-selectors > div:last-child {
-            margin-right: 0;
-        }
+                .version-selectors > div:last-child {
+                    margin-right: 0;
+                }
 
-        .version-selectors label,
-        .version-selectors select {
-            display: block;
-            width: 100%;
-            margin-bottom: 5px;
-        }
+            .version-selectors label,
+            .version-selectors select {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
 
-        button[type="submit"] {
-            height: auto;
-            align-self: flex-end;
-            flex-grow: 1;
-            margin-left: 10px;
-        }
-
-       .arrow-container {
-            display: flex;
+        .arrow-container {
+            display: inline-flex; /* Make the container inline and just as wide as its content */
             align-items: center;
             justify-content: center;
-            margin: 0 30px; /* Increased space around the arrow */
+            margin: 0 10px; /* Provide some space around the arrow, adjust as needed */
+            font-size: 2em; /* Adjust the size of the arrow */
+            color: #000;
         }
-        
-        .arrow {
-            display: inline-block;
-            width: 0;
-            height: 0;
-            border-top: 0.6em solid transparent;  /* Adjust the size to match the headline text */
-            border-bottom: 0.6em solid transparent; /* Adjust the size to match the headline text */
-            border-left: 1em solid #000; /* Adjust the width to match the headline text */
-        }
+
 
         #loadExample {
             color: #007bff;
             text-decoration: none;
         }
-        
-        #loadExample:hover {
-            text-decoration: underline;
+
+            #loadExample:hover {
+                text-decoration: underline;
+            }
+
+        #footer {
+            text-align: center;
+            padding: 1em 0;
+            background-color: #f8f9fa; /* Light grey background, you can choose any color you prefer */
+            border-top: 1px solid #e7e7e7; /* A subtle line to separate the footer from the content */
+            color: #6c757d; /* Muted text color, ensures legibility */
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.9em; /* Slightly smaller font size is common for footers */
         }
 
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .arrow-container {
-                margin: 0 10px; /* Less space on smaller screens */
-            }
-            .arrow {
-                border-top: 0.5em solid transparent;
-                border-bottom: 0.5em solid transparent;
-                border-left: 0.8em solid #000;
-            }
-            select, input[type="text"] {
-                width: auto;
-            }
+        #diffOutput {
+            min-height: 200px; /* Set the minimum height */
+            background-color: #fff; /* Optional: background color */
+            border: 1px solid #ddd; /* Optional: border */
+            padding: 1em;
+            position: relative;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
         }
+
+            #diffOutput:empty::before {
+                content: 'Diff output will be displayed here...';
+                color: #bbb; /* Placeholder text color */
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+        /* Additional styles */
+        .repo-input-container {
+            display: flex;
+            align-items: center;
+        }
+
+
 
     </style>
 </head>
@@ -131,14 +149,12 @@
     <div class="header">
         <h2>Github Diff Viewer</h2>
         <div>
+            <a href="#" id="loadExample" style="margin-left: 10px; margin-right: 10px; ">Load Example --&gt</a>
             <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
-            <a href="#" id="loadExample" style="margin-left: 10px;">Load Example</a>
+            <button type="button" id="pasteUrl" class="action-button">&lt;-- Paste</button>
         </div>
     </div>
     <form id="diffForm">
-        <input type="hidden" id="selectedVersionFrom">
-        <input type="hidden" id="selectedVersionTo">
-    
         <div class="version-selectors">
             <div>
                 <label for="branchSelectorFrom">From Branch/Tag/Commit:</label>
@@ -146,25 +162,23 @@
                 <select id="tagSelectorFrom"><option value="">Select a tag</option></select>
                 <select id="commitSelectorFrom"><option value="">Select a commit</option></select>
             </div>
-
             <div class="arrow-container">
-                <span class="arrow"></span>
+                &rarr;
             </div>
-    
             <div>
                 <label for="branchSelectorTo">To Branch/Tag/Commit:</label>
                 <select id="branchSelectorTo" required><option value="">Select a version</option></select>
                 <select id="tagSelectorTo"><option value="">Select a tag</option></select>
                 <select id="commitSelectorTo"><option value="">Select a commit</option></select>
             </div>
-    
-            <button type="submit">Load Diff</button>
+            <button type="submit" class="action-button">Load Diff</button>
         </div>
     </form>
-
     <div id="diffOutput"></div>
+    <footer id="footer">
+        Written by K. M. Knausgård 2024-04
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
