@@ -2,8 +2,7 @@ document.getElementById('repoUrl').addEventListener('change', function() {
     const repoUrl = document.getElementById('repoUrl').value.trim();
     const repoPath = parseGitHubPath(repoUrl);
     if (repoPath) {
-        fetchVersions(repoPath, 'version1');
-        fetchVersions(repoPath, 'version2');
+        fetchBranches(repoPath); // Fetch and populate branches
     } else {
         alert("Please enter a valid GitHub repository URL.");
     }
@@ -20,9 +19,22 @@ function parseGitHubPath(url) {
     }
 }
 
+function fetchBranches(repoPath) {
+    const branchesUrl = `https://api.github.com/repos/${repoPath}/branches`;
+    fetch(branchesUrl)
+        .then(response => response.json())
+        .then(branches => {
+            const branchSelector = document.getElementById('branchSelector');
+            branchSelector.innerHTML = branches.map(branch => `<option value="${branch.name}">${branch.name}</option>`).join('');
+            branchSelector.dispatchEvent(new Event('change')); // Automatically trigger the change event to fetch tags and commits
+        });
+}
 
+// This function is to be called when the selected branch changes
 function fetchTagsAndCommits(branchName) {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    if (!repoPath) return;
+    
     const tagsUrl = `https://api.github.com/repos/${repoPath}/tags`;
     const commitsUrl = `https://api.github.com/repos/${repoPath}/commits?sha=${branchName}`;
 
@@ -31,7 +43,7 @@ function fetchTagsAndCommits(branchName) {
         .then(response => response.json())
         .then(tags => {
             const tagSelector = document.getElementById('tagSelector');
-            tagSelector.innerHTML = tags.map(tag => `<option value="${tag.name}">${tag.name}</option>`).join('');
+            tagSelector.innerHTML = '<option value="">Select a tag</option>' + tags.map(tag => `<option value="${tag.name}">${tag.name}</option>`).join('');
         });
 
     // Fetch and populate commits, limiting to the most recent 30 for example
@@ -39,28 +51,27 @@ function fetchTagsAndCommits(branchName) {
         .then(response => response.json())
         .then(commits => {
             const commitSelector = document.getElementById('commitSelector');
-            commitSelector.innerHTML = commits.slice(0, 30).map(commit => `<option value="${commit.sha}">${commit.commit.message.split('\n')[0]}</option>`).join('');
+            commitSelector.innerHTML = '<option value="">Select a commit</option>' + commits.slice(0, 30).map(commit => `<option value="${commit.sha}">${commit.commit.message.split('\n')[0]}</option>`).join('');
         });
 }
 
-// Fetch and populate branches on initial load or repository URL change
-function fetchBranches(repoPath) {
-    const branchesUrl = `https://api.github.com/repos/${repoPath}/branches`;
-    fetch(branchesUrl)
-        .then(response => response.json())
-        .then(branches => {
-            const branchSelector = document.getElementById('branchSelector');
-            branchSelector.innerHTML = branches.map(branch => `<option value="${branch.name}">${branch.name}</option>`).join('');
-        });
-}
-
+document.getElementById('branchSelector').addEventListener('change', function() {
+    const selectedBranch = this.value;
+    fetchTagsAndCommits(selectedBranch); // Fetch and populate tags and commits for the selected branch
+});
 
 document.getElementById('diffForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    const repoUrl = document.getElementById('repoUrl').value.trim();
-    const repoPath = parseGitHubPath(repoUrl);
-    const version1 = document.getElementById('version1').value;
-    const version2 = document.getElementById('version2').value;
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const branch = document.getElementById('branchSelector').value;
+    const tag = document.getElementById('tagSelector').value;
+    const commit = document.getElementById('commitSelector').value;
+
+    // Logic to determine which versions to compare
+    // This might need further refinement based on your specific requirements
+    const version1 = tag || branch; // Prefer tag if selected, otherwise use branch
+    const version2 = commit || tag || branch; // Prefer commit if selected, otherwise fallback to tag, then branch
+
     const url = `https://api.github.com/repos/${repoPath}/compare/${version1}...${version2}`;
 
     fetch(url, {
