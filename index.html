@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Diff Viewer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
+</head>
+<body>
+    <h1>GitHub Diff Viewer</h1>
+    <input type="text" id="version1" placeholder="Enter first tag/commit">
+    <input type="text" id="version2" placeholder="Enter second tag/commit">
+    <button onclick="loadDiff()">Load Diff</button>
+    <div id="diffOutput"></div>
+    <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
