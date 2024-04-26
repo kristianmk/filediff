@@ -10,9 +10,16 @@ document.getElementById('repoUrl').addEventListener('change', function() {
 });
 
 function parseGitHubPath(url) {
-    const match = url.match(/github\.com\/([^\/]+\/[^\/]+)/i);
-    return match ? match[1] : null;
+    const pathMatch = url.match(/github\.com\/([\w-]+\/[\w-]+)/);
+    if (pathMatch && pathMatch.length > 1) {
+        console.log("Parsed Repository Path:", pathMatch[1]); // Logging the parsed path for confirmation
+        return pathMatch[1];
+    } else {
+        console.error("Failed to parse the repository path from the URL.");
+        return null;
+    }
 }
+
 
 function fetchVersions(repoPath, selectId) {
     const tagsUrl = `https://api.github.com/repos/${repoPath}/tags`;
