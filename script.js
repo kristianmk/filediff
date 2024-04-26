@@ -162,6 +162,17 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
     });
 });
 
+
+document.getElementById('pasteUrl').addEventListener('click', function() {
+    navigator.clipboard.readText().then(
+        clipText => document.getElementById('repoUrl').value = clipText
+    ).catch(err => {
+        console.error('Error pasting text: ', err);
+        // Handle error case or inform user if necessary
+    });
+});
+
+
 // Utility function to get the selected version from the "From" or "To" dropdowns
 function getVersion(prefix) {
     // Use the value from the hidden input that keeps track of the latest selection
