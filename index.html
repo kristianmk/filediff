@@ -48,12 +48,6 @@
             overflow-x: auto;
         }
         
-        @media (max-width: 768px) {
-            select, input[type="text"] {
-                width: auto;
-            }
-        }
-        
         .header {
             display: flex;
             justify-content: space-between;
@@ -89,12 +83,57 @@
             flex-grow: 1;
             margin-left: 10px;
         }
+
+       .arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 30px; /* Increased space around the arrow */
+        }
+        
+        .arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 0.6em solid transparent;  /* Adjust the size to match the headline text */
+            border-bottom: 0.6em solid transparent; /* Adjust the size to match the headline text */
+            border-left: 1em solid #000; /* Adjust the width to match the headline text */
+        }
+
+        #loadExample {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        #loadExample:hover {
+            text-decoration: underline;
+        }
+
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .arrow-container {
+                margin: 0 10px; /* Less space on smaller screens */
+            }
+            .arrow {
+                border-top: 0.5em solid transparent;
+                border-bottom: 0.5em solid transparent;
+                border-left: 0.8em solid #000;
+            }
+            select, input[type="text"] {
+                width: auto;
+            }
+        }
+
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>GitHub Diff Viewer</h1>
-        <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
+        <h2>Github Diff Viewer</h2>
+        <div>
+            <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
+            <a href="#" id="loadExample" style="margin-left: 10px;">Load Example</a>
+        </div>
     </div>
     <form id="diffForm">
         <input type="hidden" id="selectedVersionFrom">
@@ -106,6 +145,10 @@
                 <select id="branchSelectorFrom" required><option value="">Select a version</option></select>
                 <select id="tagSelectorFrom"><option value="">Select a tag</option></select>
                 <select id="commitSelectorFrom"><option value="">Select a commit</option></select>
+            </div>
+
+            <div class="arrow-container">
+                <span class="arrow"></span>
             </div>
     
             <div>
