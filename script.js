@@ -184,11 +184,18 @@ function getVersion(prefix) {
 
 function updateFileList(repoPath, branch) {
     const url = `https://api.github.com/repos/${repoPath}/contents?ref=${branch}`;
+    console.log(`Fetching files from ${url}`); // Log the URL being fetched
     fetch(url)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(files => {
             const fileSelector = document.getElementById('fileSelector');
             fileSelector.innerHTML = '<option value="">None</option>';  // Ensures there is always an option to select no file
+            console.log(`Received files:`, files); // Log the files received
             files.forEach(file => {
                 if (file.type === "file") {
                     const option = document.createElement('option');
@@ -198,8 +205,11 @@ function updateFileList(repoPath, branch) {
                 }
             });
         })
-        .catch(error => console.error('Error fetching files:', error));
+        .catch(error => {
+            console.error('Error fetching files:', error); // Log any errors
+        });
 }
+
 
 document.getElementById('fileSelector').addEventListener('change', function() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
