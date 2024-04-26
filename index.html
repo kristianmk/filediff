@@ -7,9 +7,11 @@
 </head>
 <body>
     <h1>GitHub Diff Viewer</h1>
-    <input type="text" id="version1" placeholder="Enter first tag/commit">
-    <input type="text" id="version2" placeholder="Enter second tag/commit">
-    <button onclick="loadDiff()">Load Diff</button>
+    <form id="diffForm">
+        <input type="text" id="version1" placeholder="Enter first tag/commit" required>
+        <input type="text" id="version2" placeholder="Enter second tag/commit" required>
+        <button type="submit">Load Diff</button>
+    </form>
     <div id="diffOutput"></div>
     <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
     <script src="script.js"></script>
