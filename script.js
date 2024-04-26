@@ -61,6 +61,14 @@ function fetchTagsAndCommits(repoPath, prefix) {
         .catch(error => console.error('Error fetching commits:', error));
 }
 
+document.getElementById('loadExample').addEventListener('click', function(event) {
+    event.preventDefault();  // Prevent the link from navigating
+    document.getElementById('repoUrl').value = 'https://github.com/kristianmk/party-hat-generator';
+    // Trigger the change event to fetch branches, tags, and commits for the example repo
+    document.getElementById('repoUrl').dispatchEvent(new Event('change'));
+});
+
+
 // Fetch and populate "From" versions
 document.getElementById('branchSelectorFrom').addEventListener('change', function() {
     const selectedBranch = this.value;
