@@ -228,9 +228,12 @@ document.getElementById('fileSelector').addEventListener('change', function() {
 });
 
 function clearTimelineDisplay() {
-    // Clear the timeline display area, adjust based on your implementation
-    const timelineArea = document.getElementById('.timeline-baseLine');
-    timelineArea.innerHTML = '';
+    const baseLine = document.querySelector('#fileTimelineContainer .timeline-baseLine');
+    if (baseLine) {
+        baseLine.innerHTML = ''; // Clears the content of the baseline div
+    } else {
+        console.error('Timeline baseLine element not found.');
+    }
 }
 
 function fetchFileHistory(repoPath, filePath) {
