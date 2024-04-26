@@ -176,18 +176,24 @@
         .commit-marker {
             position: absolute;
             top: 0;
-            height: 20px; /* Height of the marker */
-            width: 5px; /* Width of the marker */
-            background-color: #007bff; /* Blue color to match your theme */
-            border: none; /* No border for the markers */
-            cursor: pointer; /* Cursor to indicate it's clickable */
-            transition: transform 0.3s ease; /* Smooth transition for hover effect */
+            height: 20px;
+            width: 5px;
+            background-color: #ccc; /* Default non-active color */
+            border: 2px solid transparent; /* No border by default */
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
         }
         
         .commit-marker:hover {
-            transform: translateY(-10px); /* Move marker up slightly on hover */
-            background-color: #0056b3; /* Darker color on hover */
+            transform: translateY(-10px);
+            background-color: #0056b3; /* Darker color on hover for all */
         }
+        
+        .commit-marker.active {
+            background-color: #007bff; /* Active color */
+            border-color: #0056b3; /* More noticeable border for active marker */
+        }
+
 
 
 
