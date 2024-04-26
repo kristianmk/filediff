@@ -179,9 +179,20 @@
                 <select id="tagSelectorTo"><option value="">Select a tag</option></select>
                 <select id="commitSelectorTo"><option value="">Select a commit</option></select>
             </div>
+            <div>
+                <label for="fileSelector">Select File (optional):</label>
+                <select id="fileSelector">
+                    <option value="">None</option>
+                    <!-- Additional options will be dynamically added here -->
+                </select>
+            </div>
             <button type="submit" class="action-button">Load Diff</button>
         </div>
     </form>
+    <div id="fileTimelineContainer" style="position: relative; width: 100%; height: 50px;">
+        <div style="position: absolute; width: 100%; height: 2px; background-color: #ccc;"></div>
+        <!-- Dynamically generated markers if any -->
+    </div>
     <div id="diffOutput"></div>
     <footer id="footer">
         Written by K. M. Knausgård 2024-04 (<a href="https://github.com/kristianmk/filediff">https://github.com/kristianmk/filediff/</a>)
