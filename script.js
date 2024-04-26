@@ -258,31 +258,66 @@ function fetchFileHistory(repoPath, filePath) {
 
 function displayTimeline(commits) {
     const timelineContainer = document.getElementById("fileTimelineContainer");
-    timelineContainer.innerHTML = ''; // Clear previous timeline data
+    timelineContainer.innerHTML = ''; // Clear previous timeline
+    // Create navigation buttons
+    const prevButton = createNavigationButton('prev', commits);
+    const nextButton = createNavigationButton('next', commits);
+    timelineContainer.appendChild(prevButton);
 
-    const baseLine = document.createElement("div");
-    baseLine.style.position = "absolute";
-    baseLine.style.width = "100%";
-    baseLine.style.height = "2px";
-    baseLine.style.backgroundColor = "#ccc";
-    timelineContainer.appendChild(baseLine);
+    // Assume commits is an array of objects with a date property
+    commits.forEach((commit, index) => {
+        const commitButton = document.createElement("button");
+        commitButton.style.position = "absolute";
+        commitButton.style.left = calculatePosition(commit.commit.author.date, commits) + "%";
+        commitButton.style.top = "0";
+        commitButton.style.height = "50px";
+        commitButton.style.width = "5px";
+        commitButton.style.backgroundColor = "#007bff";
+        commitButton.title = `Commit on ${new Date(commit.commit.author.date).toLocaleDateString()}`;
+        commitButton.onclick = function() {
+            setToField(commit.sha); // Function to set the "To" field
+        };
+        timelineContainer.appendChild(commitButton);
 
-    const totalDuration = new Date(commits[commits.length - 1].commit.author.date) - new Date(commits[0].commit.author.date);
-    
-    commits.forEach(commit => {
-        const commitDate = new Date(commit.commit.author.date);
-        const position = ((commitDate - new Date(commits[0].commit.author.date)) / totalDuration) * 100;
-
-        const marker = document.createElement("div");
-        marker.style.position = "absolute";
-        marker.style.left = `${position}%`;
-        marker.style.top = "0";
-        marker.style.height = "50px";
-        marker.style.width = "5px";
-        marker.style.backgroundColor = "#007bff";
-        timelineContainer.appendChild(marker);
+        // Optionally, store index for navigation
+        commitButton.dataset.index = index;
     });
+
+    timelineContainer.appendChild(nextButton);
 }
+
+function setToField(commitSha) {
+    const toCommitSelector = document.getElementById('commitSelectorTo');
+    toCommitSelector.value = commitSha; // Assuming the value exists in the options
+    updateVersionSelection('commit', 'To'); // Call this if you want to trigger any additional logic
+}
+
+function createNavigationButton(direction, commits) {
+    const button = document.createElement("button");
+    button.textContent = direction === 'prev' ? '<' : '>';
+    button.onclick = function() {
+        navigateCommits(direction, commits);
+    };
+    return button;
+}
+
+function navigateCommits(direction, commits) {
+    const toCommitSelector = document.getElementById('commitSelectorTo');
+    let currentIndex = commits.findIndex(commit => commit.sha === toCommitSelector.value);
+
+    // Determine the new index based on the direction
+    if (direction === 'prev' && currentIndex > 0) {
+        currentIndex -= 1;
+    } else if (direction === 'next' && currentIndex < commits.length - 1) {
+        currentIndex += 1;
+    }
+
+    // Set the new commit SHA to the "To" field and update display
+    if (currentIndex >= 0 && currentIndex < commits.length) {
+        setToField(commits[currentIndex].sha);
+    }
+}
+
 
 
 function calculatePosition(date, commits) {
