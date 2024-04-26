@@ -1,6 +1,8 @@
 # Github File Diff Viewer
 
 A user-friendly interface to view file diffs between commits or tags from any public Github repository.
+<img width="1459" alt="image" src="https://github.com/kristianmk/filediff/assets/1713062/003b54d4-c953-461f-ac7c-d53b027d2b97">
+
 
 ## Features
 
