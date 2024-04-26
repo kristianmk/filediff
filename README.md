@@ -22,6 +22,10 @@ To use the GitHub Diff Viewer, visit the [GitHub Pages site](https://kristianmk.
 
 Maybe.
 
+## Dependencies
+
+[diff2html](https://diff2html.xyz)
+
 ## Author
 
 Written by K. M. Knausgård using ChatGPT 4.
