@@ -4,10 +4,19 @@
     <meta charset="UTF-8">
     <title>GitHub Diff Viewer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
+    <style>
+        .active-selection {
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            border: 1px solid rgba(0, 255, 0, 0.8);
+        }
+    </style>
 </head>
 <body>
     <h1>GitHub Diff Viewer</h1>
     <form id="diffForm">
+        <input type="hidden" id="selectedVersionFrom">
+        <input type="hidden" id="selectedVersionTo">
+
         <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
     
         <div>
