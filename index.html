@@ -9,14 +9,25 @@
     <h1>GitHub Diff Viewer</h1>
     <form id="diffForm">
         <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
-        <select id="version1" required>
-            <option value="">Select first version</option>
+        
+        <label for="branchSelector">Branch:</label>
+        <select id="branchSelector" onchange="fetchTagsAndCommits(this.value)">
+            <option value="">Select a branch</option>
         </select>
-        <select id="version2" required>
-            <option value="">Select second version</option>
+    
+        <label for="tagSelector">Tag:</label>
+        <select id="tagSelector">
+            <option value="">Select a tag</option>
         </select>
+    
+        <label for="commitSelector">Commit:</label>
+        <select id="commitSelector">
+            <option value="">Select a commit</option>
+        </select>
+    
         <button type="submit">Load Diff</button>
     </form>
+
     <div id="diffOutput"></div>
     <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
     <script src="script.js"></script>
