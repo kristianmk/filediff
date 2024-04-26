@@ -128,17 +128,8 @@ function updateVersionSelection(type, prefix) {
 });
 
 
-document.getElementById('diffForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    
-    // Retrieve the selected "From" version
-    const version1 = getVersion('From');
-    // Retrieve the selected "To" version
-    const version2 = getVersion('To');
-    
-    const url = `https://api.github.com/repos/${repoPath}/compare/${version1}...${version2}`;
-
+function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
+    const url = `https://api.github.com/repos/${repoPath}/compare/${versionFrom}...${versionTo}`;
     fetch(url, {
         headers: { 'Accept': 'application/vnd.github.v3.diff' }
     })
@@ -165,7 +156,17 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
         console.error('Error fetching or processing the diff:', error);
         alert('Error fetching or processing the diff. Check console for details.');
     });
+}
+
+
+document.getElementById('diffForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const versionFrom = getVersion('From');
+    const versionTo = getVersion('To');
+    fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
 });
+
 
 
 document.getElementById('pasteUrl').addEventListener('click', function() {
@@ -312,10 +313,13 @@ function highlightActiveCommit(activeSha) {
 
 function setToField(commitSha) {
     const toCommitSelector = document.getElementById('commitSelectorTo');
-    toCommitSelector.value = commitSha; // Assuming the value exists in the options
-    updateVersionSelection('commit', 'To'); // Call this if you want to trigger any additional logic
-    highlightActiveCommit(commitSha); // Highlight the active commit marker
+    toCommitSelector.value = commitSha;
+    updateVersionSelection('commit', 'To');
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const versionFrom = getVersion('From');
+    fetchAndDisplayDiff(repoPath, versionFrom, commitSha);
 }
+
 
 function createNavigationButton(direction, commits) {
     const button = document.createElement("button");
