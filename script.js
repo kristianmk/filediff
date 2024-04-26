@@ -68,13 +68,13 @@ document.getElementById('loadExample').addEventListener('click', function(event)
     document.getElementById('repoUrl').dispatchEvent(new Event('change'));
 });
 
-
 // Fetch and populate "From" versions
 document.getElementById('branchSelectorFrom').addEventListener('change', function() {
     const selectedBranch = this.value;
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     // When a new 'From' branch is selected, fetch the associated tags and commits
     fetchTagsAndCommits(repoPath, 'From');
+    updateFileList(repoPath, branch); // Allow file selection from branchSelectorFrom only.
 });
 
 // Fetch and populate "To" versions
@@ -180,3 +180,63 @@ function getVersion(prefix) {
     // Use the value from the hidden input that keeps track of the latest selection
     return document.getElementById(`selectedVersion${prefix}`).value;
 }
+
+
+function updateFileList(repoPath, branch) {
+    const url = `https://api.github.com/repos/${repoPath}/contents?ref=${branch}`;
+    fetch(url)
+        .then(response => response.json())
+        .then(files => {
+            const fileSelector = document.getElementById('fileSelector');
+            fileSelector.innerHTML = '<option value="">None</option>';  // Ensures there is always an option to select no file
+            files.forEach(file => {
+                if (file.type === "file") {
+                    const option = document.createElement('option');
+                    option.value = file.path;
+                    option.textContent = file.name;
+                    fileSelector.appendChild(option);
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching files:', error));
+}
+
+document.getElementById('fileSelector').addEventListener('change', function() {
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const filePath = this.value;
+    if (filePath) {
+        fetchFileHistory(repoPath, filePath);
+    } else {
+        // Clear any existing timeline display if 'None' is selected
+        clearTimelineDisplay();
+    }
+});
+
+function fetchFileHistory(repoPath, filePath) {
+    const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
+    fetch(url)
+        .then(response => response.json())
+        .then(commits => {
+            displayTimeline(commits);
+        })
+        .catch(error => console.error('Error fetching file history:', error));
+}
+
+function clearTimelineDisplay() {
+    // Clear the timeline display area, adjust based on your implementation
+    const timelineArea = document.getElementById('timelineDisplay');
+    timelineArea.innerHTML = '';
+}
+
+function displayTimeline(commits) {
+    // Implement your logic to visualize the timeline based on the commits data
+    const timelineArea = document.getElementById('timelineDisplay');
+    timelineArea.innerHTML = ''; // Clear previous timeline
+    commits.forEach(commit => {
+        const marker = document.createElement('div');
+        marker.textContent = `Commit on ${new Date(commit.commit.author.date).toLocaleDateString()}`;
+        timelineArea.appendChild(marker);
+    });
+}
+
+
