@@ -14,6 +14,14 @@ function parseGitHubPath(url) {
     return pathMatch ? pathMatch[1] : null;
 }
 
+// Fetch and populate tags and commits, and update file list
+function updateBranchData(repoPath, prefix) {
+    fetchTagsAndCommits(repoPath, prefix); // Fetch tags and commits
+    if (prefix === 'From') {
+        updateFileList(repoPath, document.getElementById(`branchSelector${prefix}`).value); // Update file list for 'From' branch
+    }
+}
+
 function fetchBranches(repoPath, prefix) {
     const branchesUrl = `https://api.github.com/repos/${repoPath}/branches`;
     fetch(branchesUrl)
@@ -23,7 +31,7 @@ function fetchBranches(repoPath, prefix) {
             branchSelector.innerHTML = branches.map(branch => 
                 `<option value="${branch.name}" ${branch.name === 'main' || branch.name === 'master' ? 'selected' : ''}>${branch.name}</option>`
             ).join('');
-            fetchTagsAndCommits(repoPath, prefix); // Fetch tags and commits after branches are loaded
+                updateBranchData(repoPath, prefix); // Initialize tags, commits, and file list on load
         })
         .catch(error => console.error('Error fetching branches:', error));
 }
@@ -70,17 +78,14 @@ document.getElementById('loadExample').addEventListener('click', function(event)
 
 // Fetch and populate "From" versions
 document.getElementById('branchSelectorFrom').addEventListener('change', function() {
-    const selectedBranch = this.value;
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    // When a new 'From' branch is selected, fetch the associated tags and commits
-    fetchTagsAndCommits(repoPath, 'From');
-    updateFileList(repoPath, selectedBranch); // Allow file selection from branchSelectorFrom only.
+    updateBranchData(repoPath, 'From'); // Update tags, commits, and file list on change
 });
 
 // Fetch and populate "To" versions
 document.getElementById('branchSelectorTo').addEventListener('change', function() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    fetchTagsAndCommits(repoPath, 'To');
+    updateBranchData(repoPath, 'To'); // Update tags and commits on change
 });
 
 // Function to remove highlights from all dropdowns
