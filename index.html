@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Missing Github Diff Viewer</title>
+    <title>GitHub Diff Viewer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
     <style>
         .active-selection {
@@ -48,50 +48,75 @@
             overflow-x: auto;
         }
         
-        /* Responsive design */
         @media (max-width: 768px) {
             select, input[type="text"] {
                 width: auto;
             }
         }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
+        .version-selectors {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .version-selectors > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .version-selectors > div:last-child {
+            margin-right: 0;
+        }
+
+        .version-selectors label,
+        .version-selectors select {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        button[type="submit"] {
+            height: auto;
+            align-self: flex-end;
+            flex-grow: 1;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>GitHub Diff Viewer</h1>
+    <div class="header">
+        <h1>GitHub Diff Viewer</h1>
+        <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
+    </div>
     <form id="diffForm">
         <input type="hidden" id="selectedVersionFrom">
         <input type="hidden" id="selectedVersionTo">
-
-        <input type="text" id="repoUrl" placeholder="Enter full GitHub repository URL" required>
     
-        <div>
-            <label for="branchSelectorFrom">From Branch/Tag/Commit:</label>
-            <select id="branchSelectorFrom" required>
-                <option value="">Select a version</option>
-            </select>
-            <select id="tagSelectorFrom">
-                <option value="">Select a tag</option>
-            </select>
-            <select id="commitSelectorFrom">
-                <option value="">Select a commit</option>
-            </select>
+        <div class="version-selectors">
+            <div>
+                <label for="branchSelectorFrom">From Branch/Tag/Commit:</label>
+                <select id="branchSelectorFrom" required><option value="">Select a version</option></select>
+                <select id="tagSelectorFrom"><option value="">Select a tag</option></select>
+                <select id="commitSelectorFrom"><option value="">Select a commit</option></select>
+            </div>
+    
+            <div>
+                <label for="branchSelectorTo">To Branch/Tag/Commit:</label>
+                <select id="branchSelectorTo" required><option value="">Select a version</option></select>
+                <select id="tagSelectorTo"><option value="">Select a tag</option></select>
+                <select id="commitSelectorTo"><option value="">Select a commit</option></select>
+            </div>
+    
+            <button type="submit">Load Diff</button>
         </div>
-    
-        <div>
-            <label for="branchSelectorTo">To Branch/Tag/Commit:</label>
-            <select id="branchSelectorTo" required>
-                <option value="">Select a version</option>
-            </select>
-            <select id="tagSelectorTo">
-                <option value="">Select a tag</option>
-            </select>
-            <select id="commitSelectorTo">
-                <option value="">Select a commit</option>
-            </select>
-        </div>
-    
-        <button type="submit">Load Diff</button>
     </form>
 
     <div id="diffOutput"></div>
@@ -99,3 +124,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
