@@ -445,7 +445,7 @@ function navigateCommits(direction) {
         highlightActiveCommit(newCommitSha, document.getElementById('fileTimelineContainer'));
     }
 }
-*/
+
 
 function navigateCommits(direction) {
     if (!globalCommits.length) {
@@ -472,6 +472,50 @@ function navigateCommits(direction) {
         fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
         highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
     }
+}
+*/
+
+function navigateCommits(direction) {
+    if (!globalCommits.length) {
+        console.warn('No commits available to navigate.');
+        return;
+    }
+
+    // Get current indices
+    let currentIndexFrom = globalCommits.findIndex(commit => commit.sha === getVersion('From'));
+    let currentIndexTo = globalCommits.findIndex(commit => commit.sha === getVersion('To'));
+
+    // Calculate the distance if linked stepping is enabled
+    let distance = currentIndexTo - currentIndexFrom;
+
+    // Determine new indices based on direction and distance
+    let newIndexFrom = direction === 'next' ? currentIndexFrom + 1 : currentIndexFrom - 1;
+    let newIndexTo = newIndexFrom + distance;
+
+    // Check bounds for both newIndexFrom and newIndexTo
+    if (newIndexFrom < 0 || newIndexFrom >= globalCommits.length || newIndexTo < 0 || newIndexTo >= globalCommits.length) {
+        console.warn('Attempted to navigate beyond available commits.');
+        return;
+    }
+
+    // Set new SHAs from globalCommits based on new indices
+    const newFromCommitSha = globalCommits[newIndexFrom].sha;
+    const newToCommitSha = globalCommits[newIndexTo].sha;
+
+    // Update DOM elements
+    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
+    document.getElementById('commitSelectorTo').value = newToCommitSha;
+
+    // Update version selection display
+    updateVersionSelection('commit', 'From');
+    updateVersionSelection('commit', 'To');
+
+    // Fetch and display diff
+    fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
+
+    // Update timeline highlights
+    highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
+    highlightActiveCommit(newToCommitSha, document.getElementById('fileTimelineContainer'));
 }
 
 
