@@ -247,6 +247,7 @@ function clearTimelineDisplay() {
 }
 
 
+// Fetches the file history and auto-selects the last two commits
 function fetchFileHistory(repoPath, filePath, autoSelect = false) {
     const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
     fetch(url)
@@ -255,16 +256,13 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             return response.json();
         })
         .then(commits => {
-            if (commits.length < 2) {
-                alert('Not enough commit history available for this file.');
-                return;
-            }
             displayTimeline(commits, document.getElementById('fileTimelineContainer'));
             globalCommits = commits;
             updateNavigationButtons();
-            if (autoSelect && commits.length > 1) {
-                setFromField(commits[commits.length - 2].sha, false);
-                setToField(commits[commits.length - 1].sha, false);
+            if (autoSelect && commits.length >= 2) {
+                setFromField(commits[commits.length - 2].sha, false);  // Set the 'From' field
+                setToField(commits[commits.length - 1].sha, false);  // Set the 'To' field
+                triggerDiff();  // Now trigger the diff since both fields are set
             }
         })
         .catch(error => {
@@ -335,31 +333,34 @@ function highlightActiveCommit(activeSha, container) {
 }
 
 
-// Enhance setFromField and setToField to trigger the diff only after both are set
-function setFromField(commitSha) {
+// Sets the 'From' field and optionally triggers diff checking
+function setFromField(commitSha, trigger = true) {
     const fromCommitSelector = document.getElementById('commitSelectorFrom');
     fromCommitSelector.value = commitSha;
     updateVersionSelection('commit', 'From');
-    checkDiffReady();  // New function to check readiness before triggering diff
+    if (trigger) checkDiffReady();
 }
 
-function setToField(commitSha) {
+// Sets the 'To' field and optionally triggers diff checking
+function setToField(commitSha, trigger = true) {
     const toCommitSelector = document.getElementById('commitSelectorTo');
     toCommitSelector.value = commitSha;
     updateVersionSelection('commit', 'To');
-    checkDiffReady();  // New function to check readiness before triggering diff
+    if (trigger) checkDiffReady();
 }
 
-// Checks if both 'From' and 'To' are selected before triggering the diff
+// Checks if both 'From' and 'To' are set before triggering the diff
 function checkDiffReady() {
     const versionFrom = getVersion('From');
     const versionTo = getVersion('To');
     if (versionFrom && versionTo) {
         triggerDiff();
+    } else {
+        console.log("Waiting for both 'From' and 'To' versions to be selected.");
     }
 }
 
-// Trigger the diff only if both versions are selected
+// Triggers the diff if both 'From' and 'To' versions are selected
 function triggerDiff() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     const versionFrom = getVersion('From');
