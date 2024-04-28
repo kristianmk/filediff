@@ -266,7 +266,7 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
                 setFromField(fromCommitSha, false);  // Set the 'From' field
                 console.log("Setting 'To' field with SHA:", toCommitSha);
                 setToField(toCommitSha, false);  // Set the 'To' field
-                console.log("Both 'From' and 'To' fields are now set with SHAs:", fromCommitSha, toCommitSha);
+                console.log("Both 'From' and 'To' fields are now set.");
                 triggerDiff();  // Now trigger the diff since both fields are set
             }
         })
@@ -348,11 +348,23 @@ function setFromField(commitSha, trigger = true) {
 
 // Sets the 'To' field and optionally triggers diff checking
 function setToField(commitSha, trigger = true) {
+    console.log("Attempting to set 'To' field with SHA:", commitSha);
     const toCommitSelector = document.getElementById('commitSelectorTo');
-    toCommitSelector.value = commitSha;
-    updateVersionSelection('commit', 'To');
-    if (trigger) checkDiffReady();
+    
+    // Check if the option exists
+    var optionExists = Array.from(toCommitSelector.options).some(option => option.value === commitSha);
+    console.log("Option exists:", optionExists);
+    
+    if (optionExists) {
+        toCommitSelector.value = commitSha; // Set the value in the dropdown
+        updateVersionSelection('commit', 'To'); // Update version selection for UI consistency
+        if (trigger) checkDiffReady(); // Optionally trigger the diff check
+        toCommitSelector.dispatchEvent(new Event('change')); // Ensure UI updates
+    } else {
+        console.error("Option with SHA not found in 'To' selector");
+    }
 }
+
 
 // Checks if both 'From' and 'To' are set before triggering the diff
 function checkDiffReady() {
