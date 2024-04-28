@@ -261,6 +261,11 @@
                     <option value="">None</option>
                     <!-- Additional options will be dynamically added here -->
                 </select>
+                <div class="link-stepping-control">
+                    <label for="linkStepping">Link 'From' and 'To' Stepping</label>
+                    <input type="checkbox" id="linkStepping" onchange="toggleLinkedStepping(this.checked)">
+                </div>
+
             </div>
             <button type="submit" class="action-button">Load Diff</button>
         </div>
