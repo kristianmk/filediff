@@ -309,6 +309,7 @@ function displayTimeline(commits, container) {
         const marker = document.createElement('div');
         marker.className = 'commit-marker';
         marker.dataset.sha = commit.sha;
+        marker.title = commit.sha;  // Tooltip showing the full commit SHA
         marker.onclick = () => {
             setFromField(commit.sha);
             highlightActiveCommit(commit.sha, container);
