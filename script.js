@@ -463,7 +463,7 @@ function navigateCommits(direction) {
         updateVersionSelection('commit', 'From');
         
         let newToCommitSha = getVersion('To');
-        if (document.getElementById('linkedSteppingCheckbox').checked) {
+        if (document.getElementById('linkStepping').checked) {
             newToCommitSha = newIndex + 1 < globalCommits.length ? globalCommits[newIndex + 1].sha : newToCommitSha;
             document.getElementById('commitSelectorTo').value = newToCommitSha;
             updateVersionSelection('commit', 'To');
