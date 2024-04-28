@@ -272,10 +272,11 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             if (autoSelect && commits.length >= 2) {
                 const fromCommitSha = commits[commits.length - 2].sha;
                 const toCommitSha = commits[commits.length - 1].sha;
+                const toCommitMessage = commits[commits.length - 1].commit.message.split('\n')[0];
                 console.log("Setting 'From' field with SHA:", fromCommitSha);
                 setFromField(fromCommitSha, false);  // Set the 'From' field
                 console.log("Setting 'To' field with SHA:", toCommitSha);
-                setToField(toCommitSha, false);  // Set the 'To' field
+                setToField(toCommitSha, toCommitMessage, false);  // Set the 'To' field
                 console.log("Both 'From' and 'To' fields are now set.");
                 triggerDiff();  // Now trigger the diff since both fields are set
             }
@@ -356,24 +357,28 @@ function setFromField(commitSha, trigger = true) {
     if (trigger) checkDiffReady();
 }
 
-// Sets the 'To' field and optionally triggers diff checking
-function setToField(commitSha, trigger = true) {
+function setToField(commitSha, commitMessage, trigger = true) {
     console.log("Attempting to set 'To' field with SHA:", commitSha);
     const toCommitSelector = document.getElementById('commitSelectorTo');
     
     // Check if the option exists
-    var optionExists = Array.from(toCommitSelector.options).some(option => option.value === commitSha);
+    let optionExists = Array.from(toCommitSelector.options).some(option => option.value === commitSha);
     console.log("Option exists:", optionExists);
     
-    if (optionExists) {
-        toCommitSelector.value = commitSha; // Set the value in the dropdown
-        updateVersionSelection('commit', 'To'); // Update version selection for UI consistency
-        if (trigger) checkDiffReady(); // Optionally trigger the diff check
-        toCommitSelector.dispatchEvent(new Event('change')); // Ensure UI updates
-    } else {
-        console.error("Option with SHA not found in 'To' selector");
+    if (!optionExists) {
+        // Create the option if it does not exist
+        const newOption = document.createElement('option');
+        newOption.value = commitSha;
+        newOption.text = commitSha.substring(0, 7) + ' - ' + commitMessage;
+        toCommitSelector.appendChild(newOption);
     }
+    
+    toCommitSelector.value = commitSha; // Set the value in the dropdown
+    updateVersionSelection('commit', 'To'); // Update version selection for UI consistency
+    if (trigger) checkDiffReady(); // Optionally trigger the diff check
+    toCommitSelector.dispatchEvent(new Event('change')); // Ensure UI updates
 }
+
 
 
 // Checks if both 'From' and 'To' are set before triggering the diff
