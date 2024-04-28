@@ -344,6 +344,7 @@ function updateTimelineHighlights() {
     highlightActiveCommit(toSha, container);
 }
 
+/*
 // Update the highlightActiveCommit to handle both 'From' and 'To'
 function highlightActiveCommit(activeSha, container) {
     const markers = container.querySelectorAll('.commit-marker');
@@ -357,6 +358,16 @@ function highlightActiveCommit(activeSha, container) {
         }
         if (marker.dataset.sha === activeSha) {
             marker.classList.add('active');
+        }
+    });
+}*/
+
+function highlightActiveCommit(activeSha, container) {
+    const markers = container.querySelectorAll('.commit-marker');
+    markers.forEach(marker => {
+        marker.classList.remove('active');
+        if (marker.dataset.sha === getVersion('From') || marker.dataset.sha === getVersion('To')) {
+            marker.classList.add('active');  // Highlight both as active
         }
     });
 }
@@ -473,7 +484,7 @@ function navigateCommits(direction) {
         highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
     }
 }
-*/
+
 
 function navigateCommits(direction) {
     if (!globalCommits.length) {
@@ -517,14 +528,54 @@ function navigateCommits(direction) {
     highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
     highlightActiveCommit(newToCommitSha, document.getElementById('fileTimelineContainer'));
 }
+*/
+
+function navigateCommits(direction) {
+    if (!globalCommits.length) {
+        console.warn('No commits available to navigate.');
+        return;
+    }
+
+    let currentIndexFrom = globalCommits.findIndex(commit => commit.sha === getVersion('From'));
+    let newIndexFrom = direction === 'next' ? currentIndexFrom + 1 : currentIndexFrom - 1;
+
+    if (newIndexFrom < 0 || newIndexFrom >= globalCommits.length) {
+        console.warn('Attempted to navigate beyond available commits.');
+        return;
+    }
+
+    let newIndexTo = newIndexFrom;
+    if (isLinkedSteppingEnabled) {
+        let currentDistance = globalCommits.findIndex(commit => commit.sha === getVersion('To')) - currentIndexFrom;
+        newIndexTo = newIndexFrom + currentDistance;
+        if (newIndexTo < 0 || newIndexTo >= globalCommits.length) {
+            console.warn('Linked navigation goes out of bounds.');
+            return;
+        }
+    }
+
+    const newFromCommitSha = globalCommits[newIndexFrom].sha;
+    const newToCommitSha = globalCommits[newIndexTo].sha;
+
+    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
+    document.getElementById('commitSelectorTo').value = newToCommitSha;
+
+    updateVersionSelection('commit', 'From');
+    updateVersionSelection('commit', 'To');
+
+    fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
+    highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
+    highlightActiveCommit(newToCommitSha, document.getElementById('fileTimelineContainer'));  // Ensure both are highlighted
+}
 
 
 let globalCommits = [];
 let isLinkedSteppingEnabled = false;
 
 
-function toggleLinkedStepping(checked) {
-    isLinkedSteppingEnabled = checked;
+// Function to toggle linked stepping
+function toggleLinkedStepping() {
+    isLinkedSteppingEnabled = document.getElementById('linkedSteppingCheckbox').checked;
 }
 
 
