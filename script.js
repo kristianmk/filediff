@@ -129,27 +129,19 @@ function updateVersionSelection(type, prefix) {
 
 
 function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
-    // Check if both versions are selected
-    if (!versionFrom || !versionTo) {
-        console.warn("Both 'From' and 'To' versions must be selected before fetching diff.");
-        alert("Please select both a 'From' and 'To' version for comparison.");
-        return; // Exit the function if either is not selected
+    if (!versionFrom || !versionTo || versionFrom === "" || versionTo === "") {
+        alert("Both 'From' and 'To' versions must be selected before fetching diff.");
+        return;
     }
-
     const url = `https://api.github.com/repos/${repoPath}/compare/${versionFrom}...${versionTo}`;
-    console.log("Requesting URL:", url); // Log the URL for debugging purposes
-
     fetch(url, {
         headers: { 'Accept': 'application/vnd.github.v3.diff' }
-    })
-    .then(response => {
+    }).then(response => {
         if (!response.ok) {
-            console.error('Failed to fetch diff:', response.statusText);
             throw new Error('Failed to fetch diff: ' + response.statusText);
         }
         return response.text();
-    })
-    .then(diffText => {
+    }).then(diffText => {
         const targetElement = document.getElementById('diffOutput');
         const configuration = {
             inputFormat: 'diff',
@@ -161,8 +153,7 @@ function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
         const diff2htmlUi = new Diff2HtmlUI(targetElement, diffText, configuration);
         diff2htmlUi.draw();
         diff2htmlUi.highlightCode();
-    })
-    .catch(error => {
+    }).catch(error => {
         console.error('Error fetching or processing the diff:', error);
         alert('Error fetching or processing the diff. Check console for details.');
     });
@@ -247,12 +238,13 @@ document.getElementById('fileSelector').addEventListener('change', function() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     const filePath = this.value;
     if (filePath) {
-        fetchFileHistory(repoPath, filePath, true);
+        fetchFileHistory(repoPath, filePath, true);  // true for auto-select latest two commits
     } else {
-        // Clear any existing timeline display if 'None' is selected
         clearTimelineDisplay();
     }
 });
+
+
 
 
 function clearTimelineDisplay() {
@@ -334,12 +326,27 @@ function displayTimeline(commits, container) {
 
 
 
-function highlightActiveCommit(activeSha, container) {
+function highlightActiveCommit(activeSha, fromSha, toSha, container) {
     const markers = container.querySelectorAll('.commit-marker');
     markers.forEach(marker => {
-        marker.classList.toggle('active', marker.dataset.sha === activeSha);
+        // Reset class
+        marker.classList.remove('active', 'from', 'to');
+        
+        // Assign new classes based on condition
+        if (marker.dataset.sha === activeSha) {
+            marker.classList.add('active');
+        }
+        if (marker.dataset.sha === fromSha) {
+            marker.classList.add('from');
+            marker.textContent = 'A';  // Label for "From"
+        }
+        if (marker.dataset.sha === toSha) {
+            marker.classList.add('to');
+            marker.textContent = 'B';  // Label for "To"
+        }
     });
 }
+
 
 
 function setFromField(commitSha) {
