@@ -344,7 +344,6 @@ function updateTimelineHighlights() {
     highlightActiveCommit(toSha, container);
 }
 
-/*
 // Update the highlightActiveCommit to handle both 'From' and 'To'
 function highlightActiveCommit(activeSha, container) {
     const markers = container.querySelectorAll('.commit-marker');
@@ -358,16 +357,6 @@ function highlightActiveCommit(activeSha, container) {
         }
         if (marker.dataset.sha === activeSha) {
             marker.classList.add('active');
-        }
-    });
-}*/
-
-function highlightActiveCommit(activeSha, container) {
-    const markers = container.querySelectorAll('.commit-marker');
-    markers.forEach(marker => {
-        marker.classList.remove('active');
-        if (marker.dataset.sha === getVersion('From') || marker.dataset.sha === getVersion('To')) {
-            marker.classList.add('active');  // Highlight both as active
         }
     });
 }
@@ -436,7 +425,7 @@ function updateNavigationButtons() {
     }
 }
 
-/*
+
 function navigateCommits(direction) {
     if (!globalCommits.length) {
         console.warn('No commits available to navigate.');
@@ -458,125 +447,7 @@ function navigateCommits(direction) {
 }
 
 
-function navigateCommits(direction) {
-    if (!globalCommits.length) {
-        console.warn('No commits available to navigate.');
-        return;
-    }
-
-    let currentIndex = globalCommits.findIndex(commit => commit.sha === document.getElementById('commitSelectorFrom').value);
-    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-    newIndex = Math.max(0, Math.min(newIndex, globalCommits.length - 1));
-
-    if (newIndex !== currentIndex) {
-        const newFromCommitSha = globalCommits[newIndex].sha;
-        document.getElementById('commitSelectorFrom').value = newFromCommitSha;
-        updateVersionSelection('commit', 'From');
-        
-        let newToCommitSha = getVersion('To');
-        if (document.getElementById('linkStepping').checked) {
-            newToCommitSha = newIndex + 1 < globalCommits.length ? globalCommits[newIndex + 1].sha : newToCommitSha;
-            document.getElementById('commitSelectorTo').value = newToCommitSha;
-            updateVersionSelection('commit', 'To');
-        }
-
-        fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
-        highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
-    }
-}
-
-
-function navigateCommits(direction) {
-    if (!globalCommits.length) {
-        console.warn('No commits available to navigate.');
-        return;
-    }
-
-    // Get current indices
-    let currentIndexFrom = globalCommits.findIndex(commit => commit.sha === getVersion('From'));
-    let currentIndexTo = globalCommits.findIndex(commit => commit.sha === getVersion('To'));
-
-    // Calculate the distance if linked stepping is enabled
-    let distance = currentIndexTo - currentIndexFrom;
-
-    // Determine new indices based on direction and distance
-    let newIndexFrom = direction === 'next' ? currentIndexFrom + 1 : currentIndexFrom - 1;
-    let newIndexTo = newIndexFrom + distance;
-
-    // Check bounds for both newIndexFrom and newIndexTo
-    if (newIndexFrom < 0 || newIndexFrom >= globalCommits.length || newIndexTo < 0 || newIndexTo >= globalCommits.length) {
-        console.warn('Attempted to navigate beyond available commits.');
-        return;
-    }
-
-    // Set new SHAs from globalCommits based on new indices
-    const newFromCommitSha = globalCommits[newIndexFrom].sha;
-    const newToCommitSha = globalCommits[newIndexTo].sha;
-
-    // Update DOM elements
-    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
-    document.getElementById('commitSelectorTo').value = newToCommitSha;
-
-    // Update version selection display
-    updateVersionSelection('commit', 'From');
-    updateVersionSelection('commit', 'To');
-
-    // Fetch and display diff
-    fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
-
-    // Update timeline highlights
-    highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
-    highlightActiveCommit(newToCommitSha, document.getElementById('fileTimelineContainer'));
-}
-*/
-
-function navigateCommits(direction) {
-    if (!globalCommits.length) {
-        console.warn('No commits available to navigate.');
-        return;
-    }
-
-    let currentIndexFrom = globalCommits.findIndex(commit => commit.sha === getVersion('From'));
-    let newIndexFrom = direction === 'next' ? currentIndexFrom + 1 : currentIndexFrom - 1;
-
-    if (newIndexFrom < 0 || newIndexFrom >= globalCommits.length) {
-        console.warn('Attempted to navigate beyond available commits.');
-        return;
-    }
-
-    let newIndexTo = newIndexFrom;
-    if (isLinkedSteppingEnabled) {
-        let currentDistance = globalCommits.findIndex(commit => commit.sha === getVersion('To')) - currentIndexFrom;
-        newIndexTo = newIndexFrom + currentDistance;
-        if (newIndexTo < 0 || newIndexTo >= globalCommits.length) {
-            console.warn('Linked navigation goes out of bounds.');
-            return;
-        }
-    }
-
-    const newFromCommitSha = globalCommits[newIndexFrom].sha;
-    const newToCommitSha = globalCommits[newIndexTo].sha;
-
-    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
-    document.getElementById('commitSelectorTo').value = newToCommitSha;
-
-    updateVersionSelection('commit', 'From');
-    updateVersionSelection('commit', 'To');
-
-    fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
-    highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
-    highlightActiveCommit(newToCommitSha, document.getElementById('fileTimelineContainer'));  // Ensure both are highlighted
-}
-
-
 let globalCommits = [];
-let isLinkedSteppingEnabled = false;
-
-
-// Function to toggle linked stepping
-function toggleLinkedStepping() {
-    isLinkedSteppingEnabled = document.getElementById('linkedSteppingCheckbox').checked;
-}
 
 
 function calculatePosition(date, commits) {
