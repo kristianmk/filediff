@@ -222,7 +222,16 @@
             cursor: pointer;
             border-radius: 5px;
         }
+
+        .link-stepping-control {
+            display: flex;
+            align-items: center;
+        }
         
+        .link-stepping-control label {
+            margin-right: 10px;
+        }
+
 
     </style>
 </head>
@@ -265,7 +274,6 @@
                     <label for="linkStepping">Step both</label>
                     <input type="checkbox" id="linkStepping" onchange="toggleLinkedStepping(this.checked)">
                 </div>
-
             </div>
             <button type="submit" class="action-button">Load Diff</button>
         </div>
