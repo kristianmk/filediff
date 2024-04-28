@@ -61,7 +61,7 @@ function fetchTagsAndCommits(repoPath, prefix) {
         .then(response => response.json())
         .then(commits => {
             const commitSelector = document.getElementById(`commitSelector${prefix}`);
-            commitSelector.innerHTML = '<option value="">Select a commit</option>' + commits.slice(0, 30).map(commit => {
+            commitSelector.innerHTML = '<option value="">Select a commit</option>' + commits.map(commit => { /* commits.slice(0, 30).map(commit => { */
                 const commitDate = new Date(commit.commit.committer.date).toLocaleString();
                 return `<option value="${commit.sha}">${commit.sha.substring(0, 7)} - ${commitDate} - ${commit.commit.message.split('\n')[0]}</option>`;
             }).join('');
