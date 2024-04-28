@@ -458,20 +458,20 @@ function navigateCommits(direction) {
     newIndex = Math.max(0, Math.min(newIndex, globalCommits.length - 1));
 
     if (newIndex !== currentIndex) {
-        updateCommits(newIndex);
+        const newFromCommitSha = globalCommits[newIndex].sha;
+        document.getElementById('commitSelectorFrom').value = newFromCommitSha;
+        updateVersionSelection('commit', 'From');
+        
+        let newToCommitSha = getVersion('To');
+        if (document.getElementById('linkedSteppingCheckbox').checked) {
+            newToCommitSha = newIndex + 1 < globalCommits.length ? globalCommits[newIndex + 1].sha : newToCommitSha;
+            document.getElementById('commitSelectorTo').value = newToCommitSha;
+            updateVersionSelection('commit', 'To');
+        }
+
+        fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newFromCommitSha, newToCommitSha);
+        highlightActiveCommit(newFromCommitSha, document.getElementById('fileTimelineContainer'));
     }
-}
-
-function updateCommits(newIndex) {
-    const newFromCommitSha = globalCommits[newIndex].sha;
-    const newToCommitSha = isLinkedSteppingEnabled && globalCommits[newIndex + 1] ? globalCommits[newIndex + 1].sha : getVersion('To');
-
-    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
-    document.getElementById('commitSelectorTo').value = newToCommitSha;
-    
-    updateVersionSelection('commit', 'From');
-    updateVersionSelection('commit', 'To');
-    triggerDiff();
 }
 
 
