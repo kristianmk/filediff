@@ -286,7 +286,8 @@ function displayTimeline(commits, container) {
             setFromField(commit.sha);
             highlightActiveCommit(commit.sha, container);
         };
-        container.appendChild(marker);
+        //container.appendChild(marker);
+        container.querySelector('.timeline-baseLine').appendChild(marker);
 
         // Calculate time difference for flex-grow
         if (index < commits.length - 1) {
