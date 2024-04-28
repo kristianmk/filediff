@@ -129,12 +129,22 @@ function updateVersionSelection(type, prefix) {
 
 
 function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
+    // Check if both versions are selected
+    if (!versionFrom || !versionTo) {
+        console.warn("Both 'From' and 'To' versions must be selected before fetching diff.");
+        alert("Please select both a 'From' and 'To' version for comparison.");
+        return; // Exit the function if either is not selected
+    }
+
     const url = `https://api.github.com/repos/${repoPath}/compare/${versionFrom}...${versionTo}`;
+    console.log("Requesting URL:", url); // Log the URL for debugging purposes
+
     fetch(url, {
         headers: { 'Accept': 'application/vnd.github.v3.diff' }
     })
     .then(response => {
         if (!response.ok) {
+            console.error('Failed to fetch diff:', response.statusText);
             throw new Error('Failed to fetch diff: ' + response.statusText);
         }
         return response.text();
@@ -157,6 +167,7 @@ function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
         alert('Error fetching or processing the diff. Check console for details.');
     });
 }
+
 
 
 document.getElementById('diffForm').addEventListener('submit', function(event) {
