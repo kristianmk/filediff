@@ -156,12 +156,12 @@
         }
         
         .timeline-baseLine {
-            display: flex;
-            flex-grow: 1;
-            align-items: center;
-            height: 2px;
-            background-color: #ccc;
-            position: relative;
+            display: flex;  /* Ensures flexbox is being used */
+            align-items: center;  /* Vertically center items within the timeline */
+            flex-grow: 1;  /* Allow the baseline to take up available space */
+            height: 2px;  /* Height of the timeline itself */
+            background-color: #ccc;  /* Color of the timeline */
+            position: relative;  /* Relative positioning for absolutely positioned children */
         }
         
         .nav-button {
@@ -176,19 +176,21 @@
 
 
         .commit-marker {
-            height: 1em; /* Set to match .dot size */
-            width: 1em; /* Set to match .dot size */
-            background-color: gray;
-            border-radius: 50%;
-            position: relative; /* Switched from absolute for Flexbox */
-            margin: 0 5px; /* Adjust spacing based on your design */
+            background-color: gray; /* Color of the marker */
+            border-radius: 50%;  /* Circular markers */
+            height: 20px;  /* Height of the marker */
+            width: 20px;  /* Width of the marker */
+            position: absolute;  /* Absolute positioning relative to the timeline */
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
         
         .commit-marker:hover,
         .commit-marker.active {
             background-color: #007bff;
+        }
+
+        .space {
+            flex-grow: 1;  /* Let spaces grow to fill available space */
         }
     </style>
 </head>
