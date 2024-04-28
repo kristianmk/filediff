@@ -237,8 +237,6 @@ document.getElementById('fileSelector').addEventListener('change', function() {
 });
 
 
-
-
 function clearTimelineDisplay() {
     const baseLine = document.querySelector('#fileTimelineContainer .timeline-baseLine');
     if (baseLine) {
@@ -248,7 +246,8 @@ function clearTimelineDisplay() {
     }
 }
 
-function fetchFileHistory(repoPath, filePath) {
+
+function fetchFileHistory(repoPath, filePath, autoSelect = false) {
     const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
     fetch(url)
         .then(response => {
@@ -260,14 +259,13 @@ function fetchFileHistory(repoPath, filePath) {
                 alert('Not enough commit history available for this file.');
                 return;
             }
-
             displayTimeline(commits, document.getElementById('fileTimelineContainer'));
             globalCommits = commits;
             updateNavigationButtons();
-
-            // Set the last two commits without triggering the diff
-            setFromField(commits[commits.length - 2].sha);
-            setToField(commits[commits.length - 1].sha);
+            if (autoSelect && commits.length > 1) {
+                setFromField(commits[commits.length - 2].sha, false);
+                setToField(commits[commits.length - 1].sha, false);
+            }
         })
         .catch(error => {
             console.error('Error fetching file history:', error);
@@ -370,8 +368,6 @@ function triggerDiff() {
         fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
     }
 }
-
-
 
 
 function updateNavigationButtons() {
