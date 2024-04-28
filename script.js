@@ -256,7 +256,7 @@ function clearTimelineDisplay() {
     }
 }
 
-function fetchFileHistory(repoPath, filePath, autoSelect = false) {
+function fetchFileHistory(repoPath, filePath) {
     const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
     fetch(url)
         .then(response => {
@@ -264,25 +264,26 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             return response.json();
         })
         .then(commits => {
-            if (commits.length === 0) {
-                alert('No commit history available for this file.');
-                clearTimelineDisplay();
-            } else {
-                displayTimeline(commits, document.getElementById('fileTimelineContainer'));
-                globalCommits = commits;
-                updateNavigationButtons();
-                if (autoSelect && commits.length > 1) {
-                    // Automatically select the last two commits
-                    setFromField(commits[commits.length - 2].sha);
-                    setToField(commits[commits.length - 1].sha);
-                }
+            if (commits.length < 2) {
+                alert('Not enough commit history available for this file.');
+                return;
             }
+
+            displayTimeline(commits, document.getElementById('fileTimelineContainer'));
+            globalCommits = commits;
+            updateNavigationButtons();
+
+            // Set the last two commits without triggering the diff
+            setFromField(commits[commits.length - 2].sha);
+            setToField(commits[commits.length - 1].sha);
         })
         .catch(error => {
             console.error('Error fetching file history:', error);
             alert('Error fetching file history: ' + error.message);
         });
 }
+
+
 
 document.getElementById('prevButton').addEventListener('click', () => {
     // Logic for handling the previous button click
@@ -326,54 +327,59 @@ function displayTimeline(commits, container) {
 
 
 
-function highlightActiveCommit(activeSha, fromSha, toSha, container) {
+// Update the highlightActiveCommit to handle both 'From' and 'To'
+function highlightActiveCommit(activeSha, container) {
     const markers = container.querySelectorAll('.commit-marker');
     markers.forEach(marker => {
-        // Reset class
         marker.classList.remove('active', 'from', 'to');
-        
-        // Assign new classes based on condition
+        if (marker.dataset.sha === getVersion('From')) {
+            marker.classList.add('from');
+        }
+        if (marker.dataset.sha === getVersion('To')) {
+            marker.classList.add('to');
+        }
         if (marker.dataset.sha === activeSha) {
             marker.classList.add('active');
-        }
-        if (marker.dataset.sha === fromSha) {
-            marker.classList.add('from');
-            marker.textContent = 'A';  // Label for "From"
-        }
-        if (marker.dataset.sha === toSha) {
-            marker.classList.add('to');
-            marker.textContent = 'B';  // Label for "To"
         }
     });
 }
 
 
-
+// Enhance setFromField and setToField to trigger the diff only after both are set
 function setFromField(commitSha) {
     const fromCommitSelector = document.getElementById('commitSelectorFrom');
     fromCommitSelector.value = commitSha;
     updateVersionSelection('commit', 'From');
-    if (getVersion('To')) {  // Check if 'To' version is already set
-        triggerDiff();
-    }
+    checkDiffReady();  // New function to check readiness before triggering diff
 }
 
 function setToField(commitSha) {
     const toCommitSelector = document.getElementById('commitSelectorTo');
     toCommitSelector.value = commitSha;
     updateVersionSelection('commit', 'To');
-    if (getVersion('From')) {  // Check if 'From' version is already set
+    checkDiffReady();  // New function to check readiness before triggering diff
+}
+
+// Checks if both 'From' and 'To' are selected before triggering the diff
+function checkDiffReady() {
+    const versionFrom = getVersion('From');
+    const versionTo = getVersion('To');
+    if (versionFrom && versionTo) {
         triggerDiff();
     }
 }
 
-
+// Trigger the diff only if both versions are selected
 function triggerDiff() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     const versionFrom = getVersion('From');
     const versionTo = getVersion('To');
-    fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
+    if (versionFrom && versionTo) {
+        fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
+    }
 }
+
+/
 
 
 function updateNavigationButtons() {
