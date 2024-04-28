@@ -156,7 +156,9 @@
         }
         
         .timeline-baseLine {
-            flex-grow: 1; /* Allow the timeline to grow and fill space */
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
             height: 2px;
             background-color: #ccc;
             position: relative;
@@ -174,29 +176,20 @@
 
 
         .commit-marker {
-            position: absolute;
-            top: 0;
-            height: 20px;
-            width: 5px;
-            background-color: #ccc; /* Default non-active color */
-            border: 2px solid transparent; /* No border by default */
+            height: 1em; /* Set to match .dot size */
+            width: 1em; /* Set to match .dot size */
+            background-color: gray;
+            border-radius: 50%;
+            position: relative; /* Switched from absolute for Flexbox */
+            margin: 0 5px; /* Adjust spacing based on your design */
             cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         
-        .commit-marker:hover {
-            transform: translateY(-10px);
-            background-color: #0056b3; /* Darker color on hover for all */
-        }
-        
+        .commit-marker:hover,
         .commit-marker.active {
-            background-color: #007bff; /* Active color */
-            border-color: #0056b3; /* More noticeable border for active marker */
+            background-color: #007bff;
         }
-
-
-
-
     </style>
 </head>
 <body>
@@ -238,9 +231,11 @@
             <button type="submit" class="action-button">Load Diff</button>
         </div>
     </form>
-    <div id="fileTimelineContainer">
+    <div id="fileTimelineContainer" class="timeline">
         <button id="prevButton" class="nav-button">&lt;</button>
-        <div class="timeline-baseLine"></div> <!-- This will be the timeline bar -->
+        <div class="timeline-baseLine">
+            <!-- Commit markers will be dynamically inserted here -->
+        </div>
         <button id="nextButton" class="nav-button">&gt;</button>
     </div>
     <div id="diffOutput"></div>
