@@ -168,6 +168,21 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
 });
 
 
+document.getElementById('diffForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const versionFrom = getVersion('From');
+    const versionTo = getVersion('To');
+    
+    if (versionFrom && versionTo) {  // Check if both versions are selected
+        fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
+    } else {
+        alert('Please select both a source and a target version for the comparison.');
+    }
+});
+
+
+
 
 document.getElementById('pasteUrl').addEventListener('click', function() {
     navigator.clipboard.readText().then(clipText => {
@@ -250,14 +265,14 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
                 alert('No commit history available for this file.');
                 clearTimelineDisplay();
             } else {
-                if (autoSelect && commits.length > 1) {
-                    // Auto-select the last two commits for comparison
-                    setFromField(commits[1].sha);  // Assumes there is at least two commits
-                    setToField(commits[0].sha);    // Latest commit
-                }
                 displayTimeline(commits, document.getElementById('fileTimelineContainer'));
                 globalCommits = commits;
                 updateNavigationButtons();
+                if (autoSelect && commits.length > 1) {
+                    // Automatically select the last two commits
+                    setFromField(commits[commits.length - 2].sha);
+                    setToField(commits[commits.length - 1].sha);
+                }
             }
         })
         .catch(error => {
@@ -316,22 +331,30 @@ function highlightActiveCommit(activeSha, container) {
 }
 
 
-function setToField(commitSha) {
-    const toCommitSelector = document.getElementById('commitSelectorTo');
-    toCommitSelector.value = commitSha;  // Update the "To" commit selector's value
-    updateVersionSelection('commit', 'To');  // Update the UI to reflect the new selection
-    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    const versionFrom = getVersion('From');  // Get the currently selected "From" version
-    fetchAndDisplayDiff(repoPath, versionFrom, commitSha);  // Fetch and display the diff from "From" to "To"
-}
-
 function setFromField(commitSha) {
     const fromCommitSelector = document.getElementById('commitSelectorFrom');
-    fromCommitSelector.value = commitSha;  // Update the "From" commit selector's value
-    updateVersionSelection('commit', 'From');  // Update the UI to reflect the new selection
+    fromCommitSelector.value = commitSha;
+    updateVersionSelection('commit', 'From');
+    if (getVersion('To')) {  // Check if 'To' version is already set
+        triggerDiff();
+    }
+}
+
+function setToField(commitSha) {
+    const toCommitSelector = document.getElementById('commitSelectorTo');
+    toCommitSelector.value = commitSha;
+    updateVersionSelection('commit', 'To');
+    if (getVersion('From')) {  // Check if 'From' version is already set
+        triggerDiff();
+    }
+}
+
+
+function triggerDiff() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    const versionTo = getVersion('To');  // Get the currently selected "To" version
-    fetchAndDisplayDiff(repoPath, commitSha, versionTo);  // Fetch and display the diff from "From" to "To"
+    const versionFrom = getVersion('From');
+    const versionTo = getVersion('To');
+    fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
 }
 
 
