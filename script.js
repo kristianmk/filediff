@@ -221,12 +221,13 @@ document.getElementById('fileSelector').addEventListener('change', function() {
     const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
     const filePath = this.value;
     if (filePath) {
-        fetchFileHistory(repoPath, filePath);
+        fetchFileHistory(repoPath, filePath, true);
     } else {
         // Clear any existing timeline display if 'None' is selected
         clearTimelineDisplay();
     }
 });
+
 
 function clearTimelineDisplay() {
     const baseLine = document.querySelector('#fileTimelineContainer .timeline-baseLine');
@@ -237,9 +238,8 @@ function clearTimelineDisplay() {
     }
 }
 
-function fetchFileHistory(repoPath, filePath) {
+function fetchFileHistory(repoPath, filePath, autoSelect = false) {
     const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
-    console.log(`Fetching commit history from ${url}`); // Log fetching action
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -247,14 +247,18 @@ function fetchFileHistory(repoPath, filePath) {
         })
         .then(commits => {
             if (commits.length === 0) {
-                console.log('No commits found for this file.');
-                clearTimelineDisplay();
                 alert('No commit history available for this file.');
+                clearTimelineDisplay();
             } else {
+                if (autoSelect && commits.length > 1) {
+                    // Auto-select the last two commits for comparison
+                    setFromField(commits[1].sha);  // Assumes there is at least two commits
+                    setToField(commits[0].sha);    // Latest commit
+                }
                 displayTimeline(commits, document.getElementById('fileTimelineContainer'));
-                globalCommits = commits;  // Update the global commits array
+                globalCommits = commits;
+                updateNavigationButtons();
             }
-            updateNavigationButtons();  // Update navigation buttons based on new commits
         })
         .catch(error => {
             console.error('Error fetching file history:', error);
@@ -357,7 +361,7 @@ function navigateCommits(direction) {
         updateVersionSelection('commit', 'From');
         const versionTo = getVersion('To');
         fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newCommitSha, versionTo);
-        highlightActiveCommit(newCommitSha);
+        highlightActiveCommit(newCommitSha, document.getElementById('fileTimelineContainer'));
     }
 }
 
