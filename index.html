@@ -178,6 +178,37 @@
             background-color: #007bff;
         }
 
+        .commit-marker.from, .commit-marker.to {
+            position: relative; /* Necessary for pseudo-elements */
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Soft blue glow */
+        }
+        
+        .commit-marker.from::after, .commit-marker.to::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.8);
+        }
+        
+        .commit-marker.from::after {
+            content: 'A'; /* Label for "From" */
+            color: white;
+            text-align: center;
+            line-height: 24px; /* Adjust line height to vertically center text */
+        }
+        
+        .commit-marker.to::after {
+            content: 'B'; /* Label for "To" */
+            color: white;
+            text-align: center;
+            line-height: 24px; /* Adjust line height to vertically center text */
+        }
+
+
         .space {
             flex-grow: 1;  /* Let spaces grow to fill available space */
         }
