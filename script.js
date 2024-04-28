@@ -260,8 +260,13 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             globalCommits = commits;
             updateNavigationButtons();
             if (autoSelect && commits.length >= 2) {
-                setFromField(commits[commits.length - 2].sha, false);  // Set the 'From' field
-                setToField(commits[commits.length - 1].sha, false);  // Set the 'To' field
+                const fromCommitSha = commits[commits.length - 2].sha;
+                const toCommitSha = commits[commits.length - 1].sha;
+                console.log("Setting 'From' field with SHA:", fromCommitSha);
+                setFromField(fromCommitSha, false);  // Set the 'From' field
+                console.log("Setting 'To' field with SHA:", toCommitSha);
+                setToField(toCommitSha, false);  // Set the 'To' field
+                console.log("Both 'From' and 'To' fields are now set with SHAs:", fromCommitSha, toCommitSha);
                 triggerDiff();  // Now trigger the diff since both fields are set
             }
         })
