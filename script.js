@@ -278,6 +278,7 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
                 console.log("Setting 'To' field with SHA:", toCommitSha);
                 setToField(toCommitSha, toCommitMessage, false);  // Set the 'To' field
                 console.log("Both 'From' and 'To' fields are now set.");
+                updateTimelineHighlights()
                 triggerDiff();  // Now trigger the diff since both fields are set
             }
         })
@@ -329,7 +330,19 @@ function displayTimeline(commits, container) {
     });
 }
 
-
+function updateTimelineHighlights() {
+    const container = document.querySelector('#fileTimelineContainer'); // Adjust if your container ID differs
+    const fromSha = getVersion('From');
+    const toSha = getVersion('To');
+    
+    // Reset any previously set highlights
+    const markers = container.querySelectorAll('.commit-marker');
+    markers.forEach(marker => marker.classList.remove('active', 'from', 'to'));
+    
+    // Update highlights based on the current selections
+    highlightActiveCommit(fromSha, container);
+    highlightActiveCommit(toSha, container);
+}
 
 // Update the highlightActiveCommit to handle both 'From' and 'To'
 function highlightActiveCommit(activeSha, container) {
