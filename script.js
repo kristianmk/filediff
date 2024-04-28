@@ -252,7 +252,9 @@ function fetchFileHistory(repoPath, filePath) {
                 alert('No commit history available for this file.');
             } else {
                 displayTimeline(commits, document.getElementById('fileTimelineContainer'));
+                globalCommits = commits;  // Update the global commits array
             }
+            updateNavigationButtons();  // Update navigation buttons based on new commits
         })
         .catch(error => {
             console.error('Error fetching file history:', error);
@@ -320,17 +322,24 @@ function setFromField(commitSha) {
 }
 
 
+function updateNavigationButtons() {
+    const hasCommits = globalCommits.length > 1;
+    document.getElementById('prevButton').disabled = !hasCommits;
+    document.getElementById('nextButton').disabled = !hasCommits;
+    if (!hasCommits) {
+        console.warn('No commits available to navigate.');
+    }
+}
+
+
 function navigateCommits(direction) {
     if (!globalCommits.length) {
         console.warn('No commits available to navigate.');
         return;
     }
 
-    const currentCommit = document.getElementById('commitSelectorFrom').value;
-    let currentIndex = globalCommits.findIndex(commit => commit.sha === currentCommit);
+    let currentIndex = globalCommits.findIndex(commit => commit.sha === document.getElementById('commitSelectorFrom').value);
     let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-
-    // Ensure newIndex is within the valid range
     newIndex = Math.max(0, Math.min(newIndex, globalCommits.length - 1));
 
     if (newIndex !== currentIndex) {
@@ -342,7 +351,6 @@ function navigateCommits(direction) {
         highlightActiveCommit(newCommitSha);
     }
 }
-
 
 
 let globalCommits = [];
