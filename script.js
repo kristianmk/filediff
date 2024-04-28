@@ -425,7 +425,7 @@ function updateNavigationButtons() {
     }
 }
 
-
+/*
 function navigateCommits(direction) {
     if (!globalCommits.length) {
         console.warn('No commits available to navigate.');
@@ -445,9 +445,43 @@ function navigateCommits(direction) {
         highlightActiveCommit(newCommitSha, document.getElementById('fileTimelineContainer'));
     }
 }
+*/
+
+function navigateCommits(direction) {
+    if (!globalCommits.length) {
+        console.warn('No commits available to navigate.');
+        return;
+    }
+
+    let currentIndex = globalCommits.findIndex(commit => commit.sha === document.getElementById('commitSelectorFrom').value);
+    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+    newIndex = Math.max(0, Math.min(newIndex, globalCommits.length - 1));
+
+    if (newIndex !== currentIndex) {
+        updateCommits(newIndex);
+    }
+}
+
+function updateCommits(newIndex) {
+    const newFromCommitSha = globalCommits[newIndex].sha;
+    const newToCommitSha = isLinkedSteppingEnabled && globalCommits[newIndex + 1] ? globalCommits[newIndex + 1].sha : getVersion('To');
+
+    document.getElementById('commitSelectorFrom').value = newFromCommitSha;
+    document.getElementById('commitSelectorTo').value = newToCommitSha;
+    
+    updateVersionSelection('commit', 'From');
+    updateVersionSelection('commit', 'To');
+    triggerDiff();
+}
 
 
 let globalCommits = [];
+let isLinkedSteppingEnabled = false;
+
+
+function toggleLinkedStepping(checked) {
+    isLinkedSteppingEnabled = checked;
+}
 
 
 function calculatePosition(date, commits) {
