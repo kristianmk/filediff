@@ -270,8 +270,8 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             globalCommits = commits;
             updateNavigationButtons();
             if (autoSelect && commits.length >= 2) {
-                const fromCommitSha = commits[commits.length - 2].sha;
-                const toCommitSha = commits[commits.length - 1].sha;
+                const fromCommitSha = commits[1].sha;
+                const toCommitSha = commits[0].sha;
                 const toCommitMessage = commits[commits.length - 1].commit.message.split('\n')[0];
                 console.log("Setting 'From' field with SHA:", fromCommitSha);
                 setFromField(fromCommitSha, false);  // Set the 'From' field
@@ -286,7 +286,6 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             alert('Error fetching file history: ' + error.message);
         });
 }
-
 
 
 document.getElementById('prevButton').addEventListener('click', () => {
