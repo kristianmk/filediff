@@ -65,6 +65,8 @@ function fetchTagsAndCommits(repoPath, prefix) {
                 const commitDate = new Date(commit.commit.committer.date).toLocaleString();
                 return `<option value="${commit.sha}">${commit.sha.substring(0, 7)} - ${commitDate} - ${commit.commit.message.split('\n')[0]}</option>`;
             }).join('');
+
+            logToCommitIds();
         })
         .catch(error => console.error('Error fetching commits:', error));
 }
@@ -245,6 +247,14 @@ function clearTimelineDisplay() {
         console.error('Timeline baseLine element not found.');
     }
 }
+
+
+function logToCommitIds() {
+  const commitSelectorTo = document.getElementById('commitSelectorTo');
+  const commitIds = Array.from(commitSelectorTo.options).map(option => option.value);
+  console.log('To Commit IDs:', commitIds);
+}
+
 
 
 // Fetches the file history and auto-selects the last two commits
