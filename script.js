@@ -274,25 +274,33 @@ document.getElementById('nextButton').addEventListener('click', () => {
 
 
 function displayTimeline(commits, container) {
-    clearTimelineDisplay(container);  // Ensure the container is empty
-    commits.forEach(commit => {
+    clearTimelineDisplay(container);  // Clear existing content
+
+    let lastCommitDate = new Date(commits[0].commit.committer.date);  // Initialize with the first commit date
+    commits.forEach((commit, index) => {
+        const commitDate = new Date(commit.commit.committer.date);
         const marker = document.createElement('div');
         marker.className = 'commit-marker';
         marker.dataset.sha = commit.sha;
-        marker.textContent = '•';
         marker.onclick = () => {
             setFromField(commit.sha);
             highlightActiveCommit(commit.sha, container);
         };
         container.appendChild(marker);
-        // Add spacing div if not the last item
-        if (commit !== commits[commits.length - 1]) {
+
+        // Calculate time difference for flex-grow
+        if (index < commits.length - 1) {
+            const nextCommitDate = new Date(commits[index + 1].commit.committer.date);
+            const timeDiff = nextCommitDate - commitDate;
             const spacer = document.createElement('div');
             spacer.className = 'space';
+            spacer.style.flexGrow = timeDiff.toString();  // Use time difference as flex-grow factor
             container.appendChild(spacer);
+            lastCommitDate = nextCommitDate;  // Update lastCommitDate
         }
     });
 }
+
 
 
 function highlightActiveCommit(activeSha, container) {
