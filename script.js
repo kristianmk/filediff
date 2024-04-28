@@ -161,14 +161,6 @@ function fetchAndDisplayDiff(repoPath, versionFrom, versionTo) {
 
 
 
-document.getElementById('diffForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
-    const versionFrom = getVersion('From');
-    const versionTo = getVersion('To');
-    fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
-});
-
 
 document.getElementById('diffForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -176,7 +168,7 @@ document.getElementById('diffForm').addEventListener('submit', function(event) {
     const versionFrom = getVersion('From');
     const versionTo = getVersion('To');
     
-    if (versionFrom && versionTo) {  // Check if both versions are selected
+    if (versionFrom && versionTo) {  // Ensure both versions are selected
         fetchAndDisplayDiff(repoPath, versionFrom, versionTo);
     } else {
         alert('Please select both a source and a target version for the comparison.');
@@ -379,7 +371,7 @@ function triggerDiff() {
     }
 }
 
-/
+
 
 
 function updateNavigationButtons() {
