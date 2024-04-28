@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline layout tests</title>
+<style>
+html *
+{
+   font-size: 1em !important;
+   color: #000 !important;
+   font-family: Arial !important;
+}
+
+
+.timeline {
+  display: flex;
+  width: 100%;
+  align-items: center; /* Centers content vertically */
+}
+.container {
+    display: flex; /* Enables Flexbox */
+    width: 100%; /* Container takes up all horizontal space */
+    height: 2em;
+    white-space: nowrap; /* Prevents wrapping of content inside */
+    border: 1px solid gray;
+}
+
+.space {
+    flex-grow: 1; /* Takes up available space */
+    background-color: lightgray; /* Just for visibility */
+    padding: 0px; /* Adds some padding around the text */
+}
+
+.commit {
+    display: flex; /* Enables Flexbox inside the commit */
+    width: 0.5em; /* Fixed width */
+    background-color: lightgreen; /* Just for visibility */
+    padding: 1px; /* Adds some padding around the text */
+    margin: 1px;
+    border: 1px dotted black;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
+}
+
+
+.line {
+    display: flex; /* Uses Flexbox for alignment */
+    width: 100%; /* Makes the line stretch across its container */
+    position: relative; /* Needed if using absolute positioning inside */
+    height: 0.2em; /* Represents the height of the line */
+    background-color: gray; /* Color of the line */
+    align-items: center; /* Aligns children (dots) vertically in the center */
+}
+
+.dot {
+    width: 1em; /* Width of the dot */
+    height: 1em; /* Height of the dot */
+    background-color: gray; /* Color of the dot */
+    border-radius: 50%; /* Makes the dot circular */
+    margin: 0 0; /* Adds horizontal spacing between dots */
+}
+
+.dot.selected{
+    background-color: #007bff; /* Color of the dot */
+}
+
+
+a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #007bff;
+  color: black;
+  margin-right: 0.5em;
+}
+
+.next {
+  background-color: #007bff;
+  color: white;
+  margin-left: 0.5em;
+}
+
+</style>
+</head>
+<body>
+
+
+<div class="container">
+    <div class="space"></div>
+    <div class="commit">*</div>
+    <div class="commit">*</div>
+    <div class="commit">*</div>
+    <div class="space"></div>
+    <div class="commit">*</div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="commit">*</div>
+    <div class="space"></div>
+    <div class="commit">*</div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="commit">*</div>
+</div>
+
+<br/><br/>
+
+<div class="timeline">
+<a href="#" class="previous">&lt;</a>
+<div class="line">
+    <div class="dot"></div>
+    <div class="space"></div>
+    <div class="space"></div>
+    <div class="dot"></div>
+    <div class="space"></div>
+    <div class="dot selected"></div>
+    <div class="space"></div>
+    <div class="dot"></div>
+    <div class="space"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+</div>
+<a href="#" class="next">&gt;</a>
+</div>
+
+</body>
+</html>
+
+
