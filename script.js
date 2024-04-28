@@ -228,14 +228,6 @@ document.getElementById('fileSelector').addEventListener('change', function() {
     }
 });
 
-function clearTimelineDisplay() {
-    const baseLine = document.querySelector('#fileTimelineContainer .timeline-baseLine');
-    if (baseLine) {
-        baseLine.innerHTML = ''; // Clears the content of the baseline div
-    } else {
-        console.error('Timeline baseLine element not found.');
-    }
-}
 
 function fetchFileHistory(repoPath, filePath) {
     const url = `https://api.github.com/repos/${repoPath}/commits?path=${filePath}`;
@@ -272,43 +264,46 @@ document.getElementById('nextButton').addEventListener('click', () => {
 
 
 function displayTimeline(commits, container) {
-    clearTimelineDisplay(container);
-    globalCommits = commits;
-    const baseLine = container.querySelector('.timeline-baseLine');
-    baseLine.innerHTML = '';
-    let lastPosition = -1;
-    const minDistance = 1;
-
-    commits.forEach(commit => {
-        let position = calculatePosition(new Date(commit.commit.author.date), commits);
-        if (lastPosition !== -1 && (position - lastPosition) < minDistance) {
-            position = lastPosition + minDistance;
-        }
-        lastPosition = position;
-
-        const marker = document.createElement('button');
+    const timeline = container.querySelector('.timeline-baseLine');
+    timeline.innerHTML = ''; // Clear existing markers
+    commits.forEach((commit, index) => {
+        const marker = document.createElement('div');
         marker.className = 'commit-marker';
-        marker.dataset.sha = commit.sha; // Store commit SHA in data attribute
-        marker.style.left = position + '%';
-        marker.textContent = '•';
-        marker.onclick = function() {
+        marker.dataset.sha = commit.sha;
+        marker.onclick = () => {
             setToField(commit.sha);
             highlightActiveCommit(commit.sha, container);
         };
-        baseLine.appendChild(marker);
+
+        // Adding space before marker
+        if (index > 0) { // Skip space before the first marker
+            const space = document.createElement('div');
+            space.className = 'space';
+            timeline.appendChild(space);
+        }
+
+        timeline.appendChild(marker);
     });
 }
 
-function highlightActiveCommit(activeSha) {
-    const markers = document.querySelectorAll('.commit-marker');
+function highlightActiveCommit(activeSha, container) {
+    const markers = container.querySelectorAll('.commit-marker');
     markers.forEach(marker => {
         if (marker.dataset.sha === activeSha) {
-            marker.classList.add('active'); // Add class for active commit
+            marker.classList.add('active');
         } else {
-            marker.classList.remove('active'); // Remove class from non-active commits
+            marker.classList.remove('active');
         }
     });
 }
+
+function clearTimelineDisplay() {
+    const timeline = document.querySelector('#fileTimelineContainer .timeline-baseLine');
+    if (timeline) {
+        timeline.innerHTML = ''; // Clears the timeline
+    }
+}
+
 
 
 function setToField(commitSha) {
