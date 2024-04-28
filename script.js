@@ -253,46 +253,72 @@ function fetchFileHistory(repoPath, filePath) {
 }
 
 document.getElementById('prevButton').addEventListener('click', () => {
-    // Logic for handling the previous button click
-    navigateCommits('prev', globalCommits); // You'll need to maintain a globalCommits array
+    navigateCommits('prev');
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    // Logic for handling the next button click
-    navigateCommits('next', globalCommits); // You'll need to maintain a globalCommits array
+    navigateCommits('next');
 });
 
+function navigateCommits(direction) {
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const commitSelector = document.getElementById(`commitSelectorFrom`);
+    let currentIndex = globalCommits.findIndex(commit => commit.sha === commitSelector.value);
+
+    if (direction === 'prev' && currentIndex > 0) {
+        currentIndex--;
+    } else if (direction === 'next' && currentIndex < globalCommits.length - 1) {
+        currentIndex++;
+    }
+
+    if (currentIndex >= 0 && currentIndex < globalCommits.length) {
+        const newCommitSha = globalCommits[currentIndex].sha;
+        commitSelector.value = newCommitSha; // Set the new SHA
+        updateVersionSelection('commit', 'From'); // Update selection to new commit
+        fetchAndDisplayDiff(repoPath, newCommitSha, getVersion('To')); // Fetch and display new diff
+    }
+}
+
+
+function setToField(commitSha) {
+    const toCommitSelector = document.getElementById('commitSelectorFrom');
+    toCommitSelector.value = commitSha;
+    updateVersionSelection('commit', 'From');
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const versionTo = getVersion('To');
+    fetchAndDisplayDiff(repoPath, commitSha, versionTo);
+}
+
+function updateVersionSelection(type, prefix) {
+    const selector = document.getElementById(`${type}Selector${prefix}`);
+    selector.value = document.getElementById(`selectedVersion${prefix}`).value;
+    selector.classList.add('active-selection');
+}
 
 function displayTimeline(commits, container) {
+    clearTimelineDisplay(container);
+    globalCommits = commits; // Update the global commits array
     const timeline = container.querySelector('.timeline-baseLine');
-    timeline.innerHTML = ''; // Clear existing markers
-    commits.forEach((commit, index) => {
+    timeline.innerHTML = '';
+    commits.forEach(commit => {
         const marker = document.createElement('div');
         marker.className = 'commit-marker';
         marker.dataset.sha = commit.sha;
-        marker.onclick = () => {
+        marker.onclick = function() {
             setToField(commit.sha);
             highlightActiveCommit(commit.sha, container);
         };
-
-        // Adding space before marker
-        if (index > 0) { // Skip space before the first marker
-            const space = document.createElement('div');
-            space.className = 'space';
-            timeline.appendChild(space);
-        }
-
         timeline.appendChild(marker);
     });
+    highlightActiveCommit(globalCommits[0].sha, container); // Highlight the first commit initially
 }
 
 function highlightActiveCommit(activeSha, container) {
     const markers = container.querySelectorAll('.commit-marker');
     markers.forEach(marker => {
+        marker.classList.remove('active'); // Remove class from all markers first
         if (marker.dataset.sha === activeSha) {
-            marker.classList.add('active');
-        } else {
-            marker.classList.remove('active');
+            marker.classList.add('active'); // Add class for active commit
         }
     });
 }
@@ -325,24 +351,25 @@ function createNavigationButton(direction, commits) {
     return button;
 }
 
-function navigateCommits(direction, commits) {
-    const toCommitSelector = document.getElementById('commitSelectorTo');
-    let currentIndex = commits.findIndex(commit => commit.sha === toCommitSelector.value);
+function navigateCommits(direction) {
+    const repoPath = parseGitHubPath(document.getElementById('repoUrl').value.trim());
+    const commitSelector = document.getElementById('commitSelectorFrom');
+    let currentIndex = globalCommits.findIndex(commit => commit.sha === commitSelector.value);
 
-    // Determine the new index based on the direction
     if (direction === 'prev' && currentIndex > 0) {
-        currentIndex -= 1;
-    } else if (direction === 'next' && currentIndex < commits.length - 1) {
-        currentIndex += 1;
+        currentIndex--;
+    } else if (direction === 'next' && currentIndex < globalCommits.length - 1) {
+        currentIndex++;
     }
 
-    // Set the new commit SHA to the "To" field, update display, and highlight
-    if (currentIndex >= 0 && currentIndex < commits.length) {
-        const newCommitSha = commits[currentIndex].sha;
-        setToField(newCommitSha);
-        highlightActiveCommit(newCommitSha);
+    if (currentIndex >= 0 && currentIndex < globalCommits.length) {
+        const newCommitSha = globalCommits[currentIndex].sha;
+        commitSelector.value = newCommitSha;
+        updateVersionSelection('commit', 'From');
+        fetchAndDisplayDiff(repoPath, newCommitSha, getVersion('To'));
     }
 }
+
 
 
 let globalCommits = [];
