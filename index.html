@@ -158,10 +158,28 @@
         .timeline-baseLine {
             display: flex;  /* Ensures flexbox is being used */
             align-items: center;  /* Vertically center items within the timeline */
-            flex-grow: 1;  /* Allow the baseline to take up available space */
-            height: 2px;  /* Height of the timeline itself */
+            height: 2px;  /* Height of the timeline itself, adjust as needed */
             background-color: #ccc;  /* Color of the timeline */
-            position: relative;  /* Relative positioning for absolutely positioned children */
+            position: relative;  /* Ensures relative positioning for children */
+            width: 100%;  /* Ensure the baseline takes up full container width */
+        }
+        
+        .commit-marker {
+            height: 20px;  /* Ensure visibility */
+            width: 20px;  /* Ensure visibility */
+            background-color: gray;  /* Marker color */
+            border-radius: 50%;  /* Round markers */
+            margin: 0 5px;  /* Space around markers */
+            cursor: pointer;
+            position: relative;  /* Relative positioning within the flex layout */
+        }
+
+        .commit-marker:hover, .commit-marker.active {
+            background-color: #007bff;
+        }
+
+        .space {
+            flex-grow: 1;  /* Let spaces grow to fill available space */
         }
         
         .nav-button {
@@ -173,25 +191,8 @@
             cursor: pointer;
             border-radius: 5px;
         }
-
-
-        .commit-marker {
-            background-color: gray; /* Color of the marker */
-            border-radius: 50%;  /* Circular markers */
-            height: 20px;  /* Height of the marker */
-            width: 20px;  /* Width of the marker */
-            position: absolute;  /* Absolute positioning relative to the timeline */
-            cursor: pointer;
-        }
         
-        .commit-marker:hover,
-        .commit-marker.active {
-            background-color: #007bff;
-        }
 
-        .space {
-            flex-grow: 1;  /* Let spaces grow to fill available space */
-        }
     </style>
 </head>
 <body>
