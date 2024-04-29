@@ -309,6 +309,7 @@ function displayTimeline(commits, container) {
         marker.onclick = () => {
             setFromField(commit.sha);
             highlightActiveCommit(commit.sha, container);
+            toIndex = index;
         };
         //container.appendChild(marker);
         container.querySelector('.timeline-baseLine').appendChild(marker);
