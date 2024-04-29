@@ -266,20 +266,20 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             return response.json();
         })
         .then(commits => {
+            globalCommits = commits; // Update global commits
+
+            // Set initial indices
+            fromIndex = autoSelect ? Math.min(1, commits.length - 1) : 0;
+            toIndex = 0;
+
             displayTimeline(commits, document.getElementById('fileTimelineContainer'));
-            globalCommits = commits;
             updateNavigationButtons();
+
             if (autoSelect && commits.length >= 2) {
-                const fromCommitSha = commits[1].sha;
-                const toCommitSha = commits[0].sha;
-                const toCommitMessage = commits[commits.length - 1].commit.message.split('\n')[0];
-                console.log("Setting 'From' field with SHA:", fromCommitSha);
-                setFromField(fromCommitSha, false);  // Set the 'From' field
-                console.log("Setting 'To' field with SHA:", toCommitSha);
-                setToField(toCommitSha, toCommitMessage, false);  // Set the 'To' field
-                console.log("Both 'From' and 'To' fields are now set.");
-                updateTimelineHighlights()
-                triggerDiff();  // Now trigger the diff since both fields are set
+                setFromField(commits[fromIndex].sha, false);
+                setToField(commits[toIndex].sha, commits[0].commit.message.split('\n')[0], false);
+                updateTimelineHighlights();
+                triggerDiff(); // Trigger the diff if necessary
             }
         })
         .catch(error => {
@@ -287,6 +287,7 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
             alert('Error fetching file history: ' + error.message);
         });
 }
+
 
 
 document.getElementById('prevButton').addEventListener('click', () => navigateCommits('prev'));
@@ -424,7 +425,6 @@ function navigateCommits(direction) {
         return;
     }
 
-    // Update indices based on direction
     const updateIndex = (index) => (direction === 'next' ? index + 1 : index - 1);
     fromIndex = updateIndex(fromIndex);
     toIndex = stepBoth ? updateIndex(toIndex) : toIndex;
@@ -433,29 +433,26 @@ function navigateCommits(direction) {
     fromIndex = Math.max(0, Math.min(fromIndex, globalCommits.length - 1));
     toIndex = Math.max(0, Math.min(toIndex, globalCommits.length - 1));
 
-    // Ensure selections are valid
     const versionFrom = globalCommits[fromIndex]?.sha;
     const versionTo = globalCommits[toIndex]?.sha;
     if (versionFrom && versionTo) {
         setFromField(versionFrom, false);
         setToField(versionTo, false);
-
-        triggerDiff(); // Fetch and display diff for the current selections
-        updateTimelineHighlights(); // Highlight the timeline
+        triggerDiff(); // Trigger the diff with these selections
+        updateTimelineHighlights(); // Update timeline highlights
     }
 }
 
 
 let globalCommits = [];
-let fromIndex = -1; // Initialize with -1 to indicate no selection
+let fromIndex = -1; // Initial indices
 let toIndex = -1;
-let stepBoth = false; // Track "Step both" state
+let stepBoth = false;
 
 // Update the function to toggle stepBoth
 function toggleLinkedStepping() {
     stepBoth = document.getElementById("linkedSteppingCheckbox").checked;
 }
-
 
 
 function calculatePosition(date, commits) {
