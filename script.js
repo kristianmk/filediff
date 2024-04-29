@@ -289,15 +289,10 @@ function fetchFileHistory(repoPath, filePath, autoSelect = false) {
 }
 
 
-document.getElementById('prevButton').addEventListener('click', () => {
-    // Logic for handling the previous button click
-    navigateCommits('prev', globalCommits); // You'll need to maintain a globalCommits array
-});
+document.getElementById('prevButton').addEventListener('click', () => navigateCommits('prev'));
+document.getElementById('nextButton').addEventListener('click', () => navigateCommits('next'));
+document.getElementById('linkedSteppingCheckbox').addEventListener('change', toggleLinkedStepping);
 
-document.getElementById('nextButton').addEventListener('click', () => {
-    // Logic for handling the next button click
-    navigateCommits('next', globalCommits); // You'll need to maintain a globalCommits array
-});
 
 
 function displayTimeline(commits, container) {
@@ -344,23 +339,19 @@ function updateTimelineHighlights() {
     highlightActiveCommit(toSha, container);
 }
 
-// Update the highlightActiveCommit to handle both 'From' and 'To'
-function highlightActiveCommit(activeSha, container) {
-    const markers = container.querySelectorAll('.commit-marker');
-    markers.forEach(marker => {
-        marker.classList.remove('active', 'from', 'to');
-        if (marker.dataset.sha === getVersion('From')) {
-            marker.classList.add('from');
-        }
-        if (marker.dataset.sha === getVersion('To')) {
-            marker.classList.add('to');
-        }
-        if (marker.dataset.sha === activeSha) {
-            marker.classList.add('active');
-        }
+// Modified highlightActiveCommit to manage both states
+function highlightActiveCommit() {
+    const container = document.querySelector("#fileTimelineContainer");
+    const fromSha = getVersion("From");
+    const toSha = getVersion("To");
+
+    // Reset highlights
+    container.querySelectorAll(".commit-marker").forEach((marker) => {
+        marker.classList.remove("active", "from", "to");
+        if (marker.dataset.sha === fromSha) marker.classList.add("from");
+        if (marker.dataset.sha === toSha) marker.classList.add("to");
     });
 }
-
 
 // Sets the 'From' field and optionally triggers diff checking
 function setFromField(commitSha, trigger = true) {
@@ -426,28 +417,45 @@ function updateNavigationButtons() {
 }
 
 
+// Navigate commits function, considering stepBoth state
 function navigateCommits(direction) {
-    if (!globalCommits.length) {
-        console.warn('No commits available to navigate.');
+    if (globalCommits.length === 0) {
+        console.warn("No commits available to navigate.");
         return;
     }
 
-    let currentIndex = globalCommits.findIndex(commit => commit.sha === document.getElementById('commitSelectorFrom').value);
-    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-    newIndex = Math.max(0, Math.min(newIndex, globalCommits.length - 1));
+    // Update indices based on direction
+    const updateIndex = (index) => (direction === 'next' ? index + 1 : index - 1);
+    fromIndex = updateIndex(fromIndex);
+    toIndex = stepBoth ? updateIndex(toIndex) : toIndex;
 
-    if (newIndex !== currentIndex) {
-        const newCommitSha = globalCommits[newIndex].sha;
-        document.getElementById('commitSelectorFrom').value = newCommitSha;
-        updateVersionSelection('commit', 'From');
-        const versionTo = getVersion('To');
-        fetchAndDisplayDiff(parseGitHubPath(document.getElementById('repoUrl').value.trim()), newCommitSha, versionTo);
-        highlightActiveCommit(newCommitSha, document.getElementById('fileTimelineContainer'));
+    // Clamp indices to valid ranges
+    fromIndex = Math.max(0, Math.min(fromIndex, globalCommits.length - 1));
+    toIndex = Math.max(0, Math.min(toIndex, globalCommits.length - 1));
+
+    // Ensure selections are valid
+    const versionFrom = globalCommits[fromIndex]?.sha;
+    const versionTo = globalCommits[toIndex]?.sha;
+    if (versionFrom && versionTo) {
+        setFromField(versionFrom, false);
+        setToField(versionTo, false);
+
+        triggerDiff(); // Fetch and display diff for the current selections
+        updateTimelineHighlights(); // Highlight the timeline
     }
 }
 
 
 let globalCommits = [];
+let fromIndex = -1; // Initialize with -1 to indicate no selection
+let toIndex = -1;
+let stepBoth = false; // Track "Step both" state
+
+// Update the function to toggle stepBoth
+function toggleLinkedStepping() {
+    stepBoth = document.getElementById("linkedSteppingCheckbox").checked;
+}
+
 
 
 function calculatePosition(date, commits) {
